@@ -1,6 +1,12 @@
 .vs
 Intermediate
 Content
+Binaries/*
+!UnrealEditor-Slash.dll
+!UnrealEditor.target 
+!SlashEditor.target
+!UnrealEditor.modules*/
+DerivedDataCache
 # **/AncientContent
 # **/BlackAlder
 # **/MedievalDungeon
