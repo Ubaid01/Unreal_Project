@@ -1,5 +1,6 @@
 .vs
-Intermediate
+Intermediate/*
+!ProjectFiles*/
 Content
 Binaries/*
 !UnrealEditor-Slash.dll

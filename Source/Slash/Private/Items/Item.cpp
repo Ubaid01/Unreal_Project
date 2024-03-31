@@ -5,7 +5,7 @@
 #include<Slash/DebugMacros.h>
 
 
-AItem::AItem()
+AItem::AItem() 
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -17,12 +17,6 @@ void AItem::BeginPlay()
 {
 	Super :: BeginPlay();
 
-	UWorld* World = GetWorld(); 
-	FVector Location = GetActorLocation();
-	FVector Forward = GetActorForwardVector() ; // It gets the forward (x-axis as we want line to scale horizontally) unit vector (which means of 1 unit of UE i.e. 1cm ) .
-
-	MY_DEBUG_SPHERE(Location)
-	DRAW_VECTOR(Location, Location + Forward * 100.0f)
 }
 
 // Called every frame
@@ -30,5 +24,11 @@ void AItem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	Running_Time += DeltaTime; 
+	float Delta_Z = 2.0f * FMath :: Sin( Running_Time * 2.0f ) ; // sin period = 2*pi / k ;
+	AddActorWorldOffset(FVector(0.0f, 0.0f, Delta_Z));
+	DRAW_SPHERE_SINGLE_FRAME( GetActorLocation( ) )
+	DRAW_VECTOR_SINGLE_FRAME( GetActorLocation( ) , GetActorLocation( ) + GetActorForwardVector( ) * 100.0f ) 
+	
 }
 

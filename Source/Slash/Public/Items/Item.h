@@ -18,4 +18,14 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite , Category = "Sine Parameters" )
+	float Amplitude = 0.25f;
+
+	UPROPERTY(EditAnywhere , BlueprintReadWrite , Category = "Sine Parameters" )
+	float Time_Constant = 0.5f;
+
+private:
+	UPROPERTY( VisibleInstanceOnly , BlueprintReadOnly , meta = ( AllowPrivateAccess = "true" ) )
+	float Running_Time ;
+
 };
