@@ -12,8 +12,10 @@
       <Filter>Source</Filter>
     </None>
     <None Include="..\..\.gitignore" />
+    <None Include="..\..\C++_Unreal_Course_Functions.docx" />
     <None Include="..\..\README.md" />
     <None Include="..\..\Slash.png" />
+    <None Include="..\..\~$+_Unreal_Course_Functions.docx" />
     <Filter Include="Config">
       <UniqueIdentifier>{FA535FFB-25E1-3D20-B416-52F9BE21E06E}</UniqueIdentifier>
     </Filter>
@@ -35,6 +37,9 @@
     <Filter Include="Source\Slash">
       <UniqueIdentifier>{94A1D0C1-5657-3A5A-9815-7671CFEA4C0F}</UniqueIdentifier>
     </Filter>
+    <ClInclude Include="..\..\Source\Slash\DebugMacros.h">
+      <Filter>Source\Slash</Filter>
+    </ClInclude>
     <None Include="..\..\Source\Slash\Slash.Build.cs">
       <Filter>Source\Slash</Filter>
     </None>
@@ -53,6 +58,12 @@
     <ClCompile Include="..\..\Source\Slash\Private\Items\Item.cpp">
       <Filter>Source\Slash\Private\Items</Filter>
     </ClCompile>
+    <Filter Include="Source\Slash\Private\Pawns">
+      <UniqueIdentifier>{3C1E1C00-4399-39AF-98F7-5DD0D30C10A2}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\Slash\Private\Pawns\Bird.cpp">
+      <Filter>Source\Slash\Private\Pawns</Filter>
+    </ClCompile>
     <Filter Include="Source\Slash\Public">
       <UniqueIdentifier>{C8A49F26-1F9B-35D4-8F2E-DBB7BA8DBEC9}</UniqueIdentifier>
     </Filter>
@@ -62,8 +73,11 @@
     <ClInclude Include="..\..\Source\Slash\Public\Items\Item.h">
       <Filter>Source\Slash\Public\Items</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\Source\Slash\DebugMacros.h" />
+    <Filter Include="Source\Slash\Public\Pawns">
+      <UniqueIdentifier>{61AEE7FD-EBB3-3A1B-8394-239C9B977B03}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Source\Slash\Public\Pawns\Bird.h">
+      <Filter>Source\Slash\Public\Pawns</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
