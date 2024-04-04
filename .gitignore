@@ -1,4 +1,5 @@
 .vs
+Intermediate/ProjectFiles/UE5.vcxproj
 Intermediate/*
 !ProjectFiles*/
 Content
