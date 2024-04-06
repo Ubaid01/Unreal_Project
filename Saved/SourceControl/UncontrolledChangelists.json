@@ -5,13 +5,12 @@
 			"guid": "00000000000000000000000000000000",
 			"description": "Default Uncontrolled Changelist",
 			"files": [
-				"D:/Unreal_Projects/Slash/Content/StarterContent/HDRI/HDRI_Epic_Courtyard_Daylight.uasset",
+				"D:/Unreal_Projects/Slash/Content/StarterContent/Architecture/Floor_400x400.uasset",
 				"D:/Unreal_Projects/Slash/Content/StarterContent/Maps/Minimal_Default.umap",
-				"D:/Unreal_Projects/Slash/Content/Blueprints/Pawns/BP_Bird.uasset",
-				"D:/Unreal_Projects/Slash/Content/Blueprints/Pawns/Input/IA_Move.uasset",
-				"D:/Unreal_Projects/Slash/Content/Blueprints/Pawns/Input/IMC_BirdContext.uasset",
-				"D:/Unreal_Projects/Slash/Content/Blueprints/Pawns/Input/IA_Look.uasset",
-				"D:/Unreal_Projects/Slash/Content/Blueprints/GameMode/BP_BirdGameMode.uasset"
+				"D:/Unreal_Projects/Slash/Content/Blueprints/Characters/BP_SlashCharacter.uasset",
+				"D:/Unreal_Projects/Slash/Content/Blueprints/Characters/ABP_Slash.uasset",
+				"D:/Unreal_Projects/Slash/Content/Blueprints/Characters/ABP_.uasset",
+				"D:/Unreal_Projects/Slash/Content/Blueprints/Characters/ABP_Barbarous.uasset"
 			]
 		}
 	]

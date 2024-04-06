@@ -11,6 +11,7 @@
     <None Include="..\..\Source\SlashEditor.Target.cs">
       <Filter>Source</Filter>
     </None>
+    <None Include="..\..\.gitattributes" />
     <None Include="..\..\.gitignore" />
     <None Include="..\..\.vsconfig" />
     <None Include="..\..\C++_Unreal_Course_Functions.docx" />
@@ -56,6 +57,12 @@
     <Filter Include="Source\Slash\Private">
       <UniqueIdentifier>{C7B26820-BE6D-3F40-AEDA-61C93AD7A93B}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Slash\Private\Characters">
+      <UniqueIdentifier>{9BA98CFA-6127-392C-8A0A-29B5D28CDB9A}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\Slash\Private\Characters\SlashCharacter.cpp">
+      <Filter>Source\Slash\Private\Characters</Filter>
+    </ClCompile>
     <Filter Include="Source\Slash\Private\Items">
       <UniqueIdentifier>{3DF3D363-0D69-3A5B-97AE-980F0AD3E09A}</UniqueIdentifier>
     </Filter>
@@ -71,6 +78,12 @@
     <Filter Include="Source\Slash\Public">
       <UniqueIdentifier>{C8A49F26-1F9B-35D4-8F2E-DBB7BA8DBEC9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Slash\Public\Characters">
+      <UniqueIdentifier>{22E7A9D7-1F66-3724-A0AD-BE9FB4D684EE}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Source\Slash\Public\Characters\SlashCharacter.h">
+      <Filter>Source\Slash\Public\Characters</Filter>
+    </ClInclude>
     <Filter Include="Source\Slash\Public\Items">
       <UniqueIdentifier>{03EE9902-1225-3E3E-AF6E-23FDA4DA1733}</UniqueIdentifier>
     </Filter>
