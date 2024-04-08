@@ -40,6 +40,10 @@
 		{
 			"Name": "HairModelingToolset",
 			"Enabled": true
+		},
+		{
+			"Name": "DatasmithFBXImporter",
+			"Enabled": true
 		}
 	]
 }

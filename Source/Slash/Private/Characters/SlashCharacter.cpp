@@ -94,6 +94,7 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent -> BindAxis(FName("MoveSideways"), this, &ASlashCharacter :: MoveSideways);
 	PlayerInputComponent -> BindAxis(FName("Turn"), this, &ASlashCharacter :: Turn);
 	PlayerInputComponent -> BindAxis(FName("LookUp"), this, &ASlashCharacter :: LookUp);
+	PlayerInputComponent -> BindAction(FName("Jump"), IE_Pressed, this, &ACharacter :: Jump);// Called Actor class Character Jump already existing not Slash one as we have not overidden that.
 
 
 }
