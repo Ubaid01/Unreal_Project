@@ -40,11 +40,14 @@ void AItem::Tick(float DeltaTime)
 
 	Running_Time += DeltaTime; 
 
-	//FRotator Rotation = FRotator( TransformedSineInput( 2.0f , 2.0f ) , 0.0f , 0.0f );
+	//FVector Vector = FVector( 0.0f , 0.0f , TransformedSine( ) );
 
- //   AddActorWorldRotation(Rotation); // Rotate the actor
+	//AddActorWorldOffset(Vector);
 
-	DRAW_VECTOR_SINGLE_FRAME( GetActorLocation( ) , GetActorLocation() + GetActorForwardVector( ) * 100.0f )
+	//FRotator Rotation = FRotator( TransformedSine( ) , TransformedCosine(), 0.0f) ;
+    //AddActorWorldRotation(Rotation); // Rotate the actor
+
+	//DRAW_VECTOR_SINGLE_FRAME( GetActorLocation( ) , GetActorLocation() + GetActorForwardVector( ) * 100.0f )
 
 }
 
