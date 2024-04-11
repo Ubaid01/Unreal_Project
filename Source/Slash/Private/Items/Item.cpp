@@ -4,7 +4,7 @@
 #include "Items/Item.h"
 #include<Slash/DebugMacros.h>
 #include<DrawDebugHelpers.h>
-
+#include "Components/SphereComponent.h"
 
 AItem::AItem() 
 {
@@ -12,7 +12,12 @@ AItem::AItem()
 	PrimaryActorTick.bCanEverTick = true;
 
 	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ItemMeshComponent")); // Unreal Engine uses factory functions for pointers rather than "new".
-	RootComponent = ItemMesh ; // Here we replace the Rootcomponent with ItemMesh for DefaultSceneRootComponent so Unreal's garbage collection system will see that since RootComponent points nothing so will delete its pointer automatically.
+	RootComponent = ItemMesh ; 
+
+	Sphere = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere"));
+	Sphere -> SetupAttachment(GetRootComponent());
+	//Sphere -> SetSphereRadius(300.0f);
+	
 
 }
 
@@ -20,6 +25,12 @@ AItem::AItem()
 void AItem::BeginPlay()
 {
 	Super :: BeginPlay();
+
+	//Sphere -> OnComponentBeginOverlap.AddDynamic(this, &AItem::OnSphereOverlap);
+	//Sphere -> OnComponentEndOverlap.AddDynamic(this, &AItem::OnSphereEndOverlap);
+
+	Sphere->OnComponentBeginOverlap.AddDynamic(this, &AItem::OnSphereOverlap);
+	Sphere->OnComponentEndOverlap.AddDynamic(this, &AItem::OnSphereEndOverlap); 
 
 }
 
@@ -33,7 +44,24 @@ float AItem::TransformedCosine()
 	return Amplitude * FMath :: Cos(Running_Time * Time_Constant);
 }
 
-// Called every frame
+void AItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) 
+{
+	const FString OtherActorName = OtherActor -> GetName();
+	if (GEngine)
+	{
+		GEngine -> AddOnScreenDebugMessage(0, 5.0f , FColor :: Black, OtherActorName);
+	}
+}
+
+void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	const FString OtherActorName = FString("Ending Overlap with : " ) + OtherActor -> GetName(); // Appended FString
+	if (GEngine)
+	{
+		GEngine -> AddOnScreenDebugMessage(1, 5.0f, FColor :: Black, OtherActorName);
+	}
+}
+
 void AItem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
