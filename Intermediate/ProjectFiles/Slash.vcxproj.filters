@@ -71,6 +71,12 @@
     <ClCompile Include="..\..\Source\Slash\Private\Items\Item.cpp">
       <Filter>Source\Slash\Private\Items</Filter>
     </ClCompile>
+    <Filter Include="Source\Slash\Private\Items\Weapons">
+      <UniqueIdentifier>{408517EE-2F55-385F-99C3-9FA193CFEA11}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\Slash\Private\Items\Weapons\Weapon.cpp">
+      <Filter>Source\Slash\Private\Items\Weapons</Filter>
+    </ClCompile>
     <Filter Include="Source\Slash\Private\Pawns">
       <UniqueIdentifier>{3C1E1C00-4399-39AF-98F7-5DD0D30C10A2}</UniqueIdentifier>
     </Filter>
@@ -95,11 +101,22 @@
     <ClInclude Include="..\..\Source\Slash\Public\Items\Item.h">
       <Filter>Source\Slash\Public\Items</Filter>
     </ClInclude>
+    <Filter Include="Source\Slash\Public\Items\Weapons">
+      <UniqueIdentifier>{57653203-DE2C-3482-ABFD-5C7AF9E01F1C}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Source\Slash\Public\Items\Weapons\Weapon.h">
+      <Filter>Source\Slash\Public\Items\Weapons</Filter>
+    </ClInclude>
     <Filter Include="Source\Slash\Public\Pawns">
       <UniqueIdentifier>{61AEE7FD-EBB3-3A1B-8394-239C9B977B03}</UniqueIdentifier>
     </Filter>
     <ClInclude Include="..\..\Source\Slash\Public\Pawns\Bird.h">
       <Filter>Source\Slash\Public\Pawns</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Source\Slash\Public\Characters\CharacterTypes.h">
+      <Filter>Source\Slash\Public\Characters</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

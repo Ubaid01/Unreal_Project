@@ -5,6 +5,7 @@
 #include<Slash/DebugMacros.h>
 #include<DrawDebugHelpers.h>
 #include "Components/SphereComponent.h"
+#include "Characters/SlashCharacter.h"
 
 AItem::AItem() 
 {
@@ -16,8 +17,6 @@ AItem::AItem()
 
 	Sphere = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere"));
 	Sphere -> SetupAttachment(GetRootComponent());
-	//Sphere -> SetSphereRadius(300.0f);
-	
 
 }
 
@@ -25,9 +24,6 @@ AItem::AItem()
 void AItem::BeginPlay()
 {
 	Super :: BeginPlay();
-
-	//Sphere -> OnComponentBeginOverlap.AddDynamic(this, &AItem::OnSphereOverlap);
-	//Sphere -> OnComponentEndOverlap.AddDynamic(this, &AItem::OnSphereEndOverlap);
 
 	Sphere->OnComponentBeginOverlap.AddDynamic(this, &AItem::OnSphereOverlap);
 	Sphere->OnComponentEndOverlap.AddDynamic(this, &AItem::OnSphereEndOverlap); 
@@ -46,19 +42,19 @@ float AItem::TransformedCosine()
 
 void AItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) 
 {
-	const FString OtherActorName = OtherActor -> GetName();
-	if (GEngine)
+	ASlashCharacter* SlashCharacter = Cast<ASlashCharacter>(OtherActor);
+	if (SlashCharacter) 
 	{
-		GEngine -> AddOnScreenDebugMessage(0, 5.0f , FColor :: Black, OtherActorName);
+		SlashCharacter -> SetOverlappingItem(this); 
 	}
 }
 
 void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	const FString OtherActorName = FString("Ending Overlap with : " ) + OtherActor -> GetName(); // Appended FString
-	if (GEngine)
+	ASlashCharacter* SlashCharacter = Cast<ASlashCharacter>(OtherActor);
+	if (SlashCharacter)
 	{
-		GEngine -> AddOnScreenDebugMessage(1, 5.0f, FColor :: Black, OtherActorName);
+		SlashCharacter -> SetOverlappingItem( nullptr ); 
 	}
 }
 
@@ -67,15 +63,6 @@ void AItem::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	Running_Time += DeltaTime; 
-
-	//FVector Vector = FVector( 0.0f , 0.0f , TransformedSine( ) );
-
-	//AddActorWorldOffset(Vector);
-
-	//FRotator Rotation = FRotator( TransformedSine( ) , TransformedCosine(), 0.0f) ;
-    //AddActorWorldRotation(Rotation); // Rotate the actor
-
-	//DRAW_VECTOR_SINGLE_FRAME( GetActorLocation( ) , GetActorLocation() + GetActorForwardVector( ) * 100.0f )
 
 }
 

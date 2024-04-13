@@ -5,7 +5,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-//#include "GroomComponent.h"
+#include "Items/Item.h"
+#include "Items/Weapons/Weapon.h"
 
 
 ASlashCharacter::ASlashCharacter()
@@ -25,13 +26,6 @@ ASlashCharacter::ASlashCharacter()
 	ViewCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("ViewCamera"));
 	ViewCamera -> SetupAttachment(CameraBoom);
 
-	//Hair = CreateDefaultSubobject<UGroomComponent>(TEXT("Hair"));
-	//Hair -> SetupAttachment(GetMesh());
-	//Hair -> AttachmentName = FString("Head");
-
-	//Eyebrows = CreateDefaultSubobject<UGroomComponent>(TEXT("Eyebrows"));
-	//Eyebrows -> SetupAttachment(GetMesh());
-	//Eyebrows -> AttachmentName = FString("Head");
 }
 
 void ASlashCharacter::BeginPlay()
@@ -80,6 +74,16 @@ void ASlashCharacter::LookUp(float Value)
 	}
 }
 
+void ASlashCharacter::EquipAction()
+{
+	AWeapon* OverlappingWeapon = Cast<AWeapon>( GetOverlappingItem() );
+	if (OverlappingWeapon) 
+	{
+		OverlappingWeapon -> Equip(GetMesh(), FName("RightHandSocket"));
+		CharacterState = ECharacterState :: ECS_EquippedOneHandWeapon ;
+	}
+}
+
 void ASlashCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -95,7 +99,7 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent -> BindAxis(FName("Turn"), this, &ASlashCharacter :: Turn);
 	PlayerInputComponent -> BindAxis(FName("LookUp"), this, &ASlashCharacter :: LookUp);
 	PlayerInputComponent -> BindAction(FName("Jump"), IE_Pressed , this, &ACharacter :: Jump);
-
+	PlayerInputComponent -> BindAction(FName("Equip"), IE_Pressed, this, &ASlashCharacter :: EquipAction );
 
 }
 
