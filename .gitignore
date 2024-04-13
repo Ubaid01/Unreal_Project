@@ -8,6 +8,9 @@ Binaries/*
 !UnrealEditor.target 
 !SlashEditor.target
 !UnrealEditor.modules*/
+Saved/*
+webcache_4430
+Crashes*/
 DerivedDataCache
 # **/AncientContent
 # **/BlackAlder
