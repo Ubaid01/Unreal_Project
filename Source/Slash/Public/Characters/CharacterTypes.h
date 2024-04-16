@@ -6,5 +6,5 @@ UENUM(BlueprintType) // Used to expose Enums to Blueprints and UMETA() to change
 enum class ECharacterState : uint8
 {
 	ECS_Unequipped UMETA(DisplayName = "Unequipped"),
-	ECS_EquippedOneHandWeapon UMETA(DisplayName = "OneHandedWeapon"), ECS_EquippedTwoHandedWeapon UMETA(DisplayName = "TwoHandedWeapon")
+	ECS_EquippedOneHandWeapon UMETA(DisplayName = "EquippedOne-HandedWeapon"), ECS_EquippedTwoHandedWeapon UMETA(DisplayName = "EquippedTwo-HandedWeapon")
 };

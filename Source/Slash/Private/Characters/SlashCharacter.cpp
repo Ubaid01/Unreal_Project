@@ -7,6 +7,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Items/Item.h"
 #include "Items/Weapons/Weapon.h"
+#include "Animation/AnimMontage.h"
 
 
 ASlashCharacter::ASlashCharacter()
@@ -84,6 +85,29 @@ void ASlashCharacter::EquipAction()
 	}
 }
 
+void ASlashCharacter::Attack()
+{
+	UAnimInstance* AnimInstance = GetMesh() -> GetAnimInstance() ;
+	if ( AnimInstance && AttackMontage ) // Check If AttackMontage is also set from Details in Blueprint OR Not
+	{
+		AnimInstance -> Montage_Play( AttackMontage ) ;
+		int32 Selection = FMath :: RandRange( 0 , 1 ) ; // Is used to play different Montages Slots at random
+		FName SectionName = FName() ;
+		switch (Selection)
+		{
+			case 0:
+				SectionName = FName("Attack1");
+				break;
+			case 1:
+				SectionName = FName("Attack2");
+				break;
+			default:
+				break; // Will give error even if last break NOT given
+		}
+		AnimInstance -> Montage_JumpToSection(SectionName, AttackMontage);
+	}
+}
+
 void ASlashCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -100,6 +124,7 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent -> BindAxis(FName("LookUp"), this, &ASlashCharacter :: LookUp);
 	PlayerInputComponent -> BindAction(FName("Jump"), IE_Pressed , this, &ACharacter :: Jump);
 	PlayerInputComponent -> BindAction(FName("Equip"), IE_Pressed, this, &ASlashCharacter :: EquipAction );
+	PlayerInputComponent -> BindAction(FName("Attack"), IE_Pressed, this, &ASlashCharacter :: Attack);
 
 }
 
