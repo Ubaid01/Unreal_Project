@@ -30,6 +30,9 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	/* 
+	Callbacks for Input 
+	*/
 	void MoveForward(float Value);
 	void MoveSideways(float Value);
 	void Turn(float Value);
@@ -37,9 +40,19 @@ protected:
 	void EquipAction();
 	void Attack();
 
+	/* 
+	Play Montage Functions 
+	*/
+	void PlayAttackMontage();
+	UFUNCTION( BlueprintCallable )
+	void AttackEnd();
+	bool CanAttack() const ;
+
 private:
 
 	ECharacterState CharacterState = ECharacterState :: ECS_Unequipped ; 
+	UPROPERTY( BlueprintReadWrite , meta = ( AllowPrivateAccess = "true") ) 
+	EActionState ActionState = EActionState :: EAS_Unoccupied ;
 
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* CameraBoom;

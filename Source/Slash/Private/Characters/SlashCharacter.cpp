@@ -85,27 +85,48 @@ void ASlashCharacter::EquipAction()
 	}
 }
 
+bool ASlashCharacter::CanAttack() const
+{
+	return 	ActionState == EActionState :: EAS_Unoccupied && 
+		CharacterState != ECharacterState::ECS_Unequipped;;
+}
+
 void ASlashCharacter::Attack()
 {
-	UAnimInstance* AnimInstance = GetMesh() -> GetAnimInstance() ;
-	if ( AnimInstance && AttackMontage ) // Check If AttackMontage is also set from Details in Blueprint OR Not
+	if ( CanAttack( ) )
 	{
-		AnimInstance -> Montage_Play( AttackMontage ) ;
-		int32 Selection = FMath :: RandRange( 0 , 1 ) ; // Is used to play different Montages Slots at random
-		FName SectionName = FName() ;
+		PlayAttackMontage() ;
+		ActionState = EActionState :: EAS_Attacking ;
+
+	}
+}
+
+void ASlashCharacter::PlayAttackMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh() -> GetAnimInstance();
+	if (AnimInstance && AttackMontage) // Check If AttackMontage is also set from Details in Blueprint OR Not
+	{
+		AnimInstance -> Montage_Play(AttackMontage);
+		const int32 Selection = FMath :: RandRange(0, 1); // Is used to play different Montages Slots at random
+		FName SectionName = FName();
 		switch (Selection)
 		{
-			case 0:
-				SectionName = FName("Attack1");
-				break;
-			case 1:
-				SectionName = FName("Attack2");
-				break;
-			default:
-				break; // Will give error even if last break NOT given
+		case 0:
+			SectionName = FName("Attack1");
+			break;
+		case 1:
+			SectionName = FName("Attack2");
+			break;
+		default:
+			break; // Will give error even if last break NOT given
 		}
 		AnimInstance -> Montage_JumpToSection(SectionName, AttackMontage);
 	}
+}
+
+void ASlashCharacter::AttackEnd()
+{
+	ActionState = EActionState::EAS_Unoccupied ;
 }
 
 void ASlashCharacter::Tick(float DeltaTime)
