@@ -11,6 +11,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class AItem;
 class UAnimMontage;
+class AWeapon;
 
 
 UCLASS()
@@ -47,6 +48,9 @@ protected:
 	UFUNCTION( BlueprintCallable )
 	void AttackEnd();
 	bool CanAttack() const ;
+	void PlayEquipMontage( FName SectionName ) ;
+	bool CanDisarm() const;
+	bool CanArm() const;
 
 private:
 
@@ -63,11 +67,17 @@ private:
 	UPROPERTY( VisibleInstanceOnly ) 
 	AItem* OverlappingItem;
 
+	UPROPERTY(VisibleAnywhere, Category = "Weapon") // UPROPERTY so it particicaptes in garbage collection
+	AWeapon* EquippedWeapon ;
+
 	/* 
 		Animation Montages
 	*/
 
 	UPROPERTY( EditDefaultsOnly , Category = "Montages" )
 	UAnimMontage* AttackMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Montages")
+	UAnimMontage* EquipMontage;
 
 };

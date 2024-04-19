@@ -64,5 +64,10 @@ void AItem::Tick(float DeltaTime)
 
 	Running_Time += DeltaTime; 
 
+	if (ItemState == EItemState :: EIS_Hovering) 
+	{
+		AddActorWorldOffset( FVector( 0.0f, 0.0f , TransformedSine( ) ) ) ;
+	}
+
 }
 

@@ -39,6 +39,8 @@ void ASlashCharacter::MoveForward(float Value)
 {
 	if ((GetController()) && (Value != 0.0f)) 
 	{
+		if (ActionState == EActionState::EAS_Attacking) return ;
+
 		// Find out which way is Controller Forward
 		const FRotator ControlRotation = GetControlRotation();
 		const FRotator YawRotation(0.0f, ControlRotation.Yaw, 0.0f); // As character can only move sideways not updown so we only need to get the X-axis( Unreal's Y-Axis ) Rotation
@@ -49,6 +51,8 @@ void ASlashCharacter::MoveForward(float Value)
 
 void ASlashCharacter::MoveSideways(float Value)
 {
+	if (ActionState == EActionState::EAS_Attacking) return;
+
 	if ((GetController()) && (Value != 0.0f)) 
 	{
 		const FRotator ControlRotation = GetControlRotation();
@@ -75,6 +79,19 @@ void ASlashCharacter::LookUp(float Value)
 	}
 }
 
+bool ASlashCharacter::CanDisarm() const
+{
+	return ActionState == EActionState::EAS_Unoccupied 
+		&& CharacterState != ECharacterState::ECS_Unequipped ;
+}
+
+bool ASlashCharacter::CanArm() const
+{
+	return ActionState == EActionState::EAS_Unoccupied
+		&& CharacterState == ECharacterState::ECS_Unequipped
+		&& EquippedWeapon ;
+}
+
 void ASlashCharacter::EquipAction()
 {
 	AWeapon* OverlappingWeapon = Cast<AWeapon>( GetOverlappingItem() );
@@ -82,7 +99,36 @@ void ASlashCharacter::EquipAction()
 	{
 		OverlappingWeapon -> Equip(GetMesh(), FName("RightHandSocket"));
 		CharacterState = ECharacterState :: ECS_EquippedOneHandWeapon ;
+		EquippedWeapon = OverlappingWeapon ;
 	}
+	else 
+	{
+		// So that it also no runs in between the attack animation
+		if ( CanDisarm( ) ) 
+		{
+			UE_LOG( LogTemp , Error , TEXT("Disarmed."))
+			PlayEquipMontage(FName("UnEquip"));
+			CharacterState = ECharacterState::ECS_Unequipped;
+		}
+		else if ( CanArm( ) ) 
+		{
+			UE_LOG(LogTemp, Error, TEXT("Armed."))
+			PlayEquipMontage(FName("Equip"));
+			CharacterState = ECharacterState::ECS_EquippedOneHandWeapon;
+		}
+	}
+}
+
+void ASlashCharacter::PlayEquipMontage(FName SectionName)
+{
+
+	UAnimInstance* AnimInstance = GetMesh() -> GetAnimInstance();
+	if (AnimInstance && EquipMontage) 
+	{
+		AnimInstance -> Montage_Play(EquipMontage);
+		AnimInstance -> Montage_JumpToSection(SectionName, EquipMontage);
+	}
+
 }
 
 bool ASlashCharacter::CanAttack() const
