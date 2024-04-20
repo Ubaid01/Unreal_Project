@@ -39,7 +39,7 @@ void ASlashCharacter::MoveForward(float Value)
 {
 	if ((GetController()) && (Value != 0.0f)) 
 	{
-		if (ActionState == EActionState::EAS_Attacking) return ;
+		if (ActionState != EActionState::EAS_Unoccupied) return ;
 
 		// Find out which way is Controller Forward
 		const FRotator ControlRotation = GetControlRotation();
@@ -51,7 +51,7 @@ void ASlashCharacter::MoveForward(float Value)
 
 void ASlashCharacter::MoveSideways(float Value)
 {
-	if (ActionState == EActionState::EAS_Attacking) return;
+	if (ActionState != EActionState::EAS_Unoccupied) return;
 
 	if ((GetController()) && (Value != 0.0f)) 
 	{
@@ -92,6 +92,27 @@ bool ASlashCharacter::CanArm() const
 		&& EquippedWeapon ;
 }
 
+void ASlashCharacter::Disarm()
+{
+	if (EquippedWeapon) 
+	{
+		EquippedWeapon -> AttachMeshToSocket(GetMesh(), FName("SpineSocket"));
+	}
+}
+
+void ASlashCharacter::Arm()
+{
+	if (EquippedWeapon)
+	{
+		EquippedWeapon -> AttachMeshToSocket(GetMesh(), FName("RightHandSocket") );
+	}
+}
+
+void ASlashCharacter::FinsihEquipping()
+{
+	ActionState = EActionState::EAS_Unoccupied ; 
+}
+
 void ASlashCharacter::EquipAction()
 {
 	AWeapon* OverlappingWeapon = Cast<AWeapon>( GetOverlappingItem() );
@@ -99,6 +120,7 @@ void ASlashCharacter::EquipAction()
 	{
 		OverlappingWeapon -> Equip(GetMesh(), FName("RightHandSocket"));
 		CharacterState = ECharacterState :: ECS_EquippedOneHandWeapon ;
+		OverlappingItem = nullptr ; // After Attatching Item to mesh set that Item to Null.
 		EquippedWeapon = OverlappingWeapon ;
 	}
 	else 
@@ -106,15 +128,15 @@ void ASlashCharacter::EquipAction()
 		// So that it also no runs in between the attack animation
 		if ( CanDisarm( ) ) 
 		{
-			UE_LOG( LogTemp , Error , TEXT("Disarmed."))
 			PlayEquipMontage(FName("UnEquip"));
 			CharacterState = ECharacterState::ECS_Unequipped;
+			ActionState = EActionState::EAS_EquippingWeapon ;
 		}
 		else if ( CanArm( ) ) 
 		{
-			UE_LOG(LogTemp, Error, TEXT("Armed."))
 			PlayEquipMontage(FName("Equip"));
 			CharacterState = ECharacterState::ECS_EquippedOneHandWeapon;
+			ActionState = EActionState::EAS_EquippingWeapon ;
 		}
 	}
 }
@@ -134,7 +156,7 @@ void ASlashCharacter::PlayEquipMontage(FName SectionName)
 bool ASlashCharacter::CanAttack() const
 {
 	return 	ActionState == EActionState :: EAS_Unoccupied && 
-		CharacterState != ECharacterState::ECS_Unequipped;;
+		CharacterState != ECharacterState::ECS_Unequipped;
 }
 
 void ASlashCharacter::Attack()
