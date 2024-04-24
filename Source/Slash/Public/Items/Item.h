@@ -30,7 +30,7 @@ protected:
 	float Amplitude = 2.0f;
 
 	UPROPERTY(EditAnywhere , BlueprintReadWrite , Category = "Sine Parameters" )
-	float Time_Constant = 2.0;
+	float Time_Constant = 2.0f;
 
 	UFUNCTION(BlueprintPure)
 	float TransformedSine( );

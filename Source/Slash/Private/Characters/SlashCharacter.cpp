@@ -8,6 +8,7 @@
 #include "Items/Item.h"
 #include "Items/Weapons/Weapon.h"
 #include "Animation/AnimMontage.h"
+#include "Components/BoxComponent.h"
 
 
 ASlashCharacter::ASlashCharacter()
@@ -27,6 +28,14 @@ ASlashCharacter::ASlashCharacter()
 	ViewCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("ViewCamera"));
 	ViewCamera -> SetupAttachment(CameraBoom);
 
+}
+
+void ASlashCharacter::SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled)
+{
+	if ( EquippedWeapon && EquippedWeapon -> GetWeaponBox( ) ) 
+	{
+		EquippedWeapon -> GetWeaponBox() -> SetCollisionEnabled(CollisionEnabled); 
+	}
 }
 
 void ASlashCharacter::BeginPlay()

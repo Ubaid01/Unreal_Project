@@ -29,6 +29,9 @@ public:
 	FORCEINLINE AItem* GetOverlappingItem() const { return OverlappingItem; }
 	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState;  }
 
+	UFUNCTION(BlueprintCallable)
+	void SetWeaponCollisionEnabled(ECollisionEnabled :: Type CollisionEnabled); 
+
 protected:
 	virtual void BeginPlay() override;
 	/* 

@@ -65,6 +65,18 @@
     <ClCompile Include="..\..\Source\Slash\Private\Characters\SlashCharacter.cpp">
       <Filter>Source\Slash\Private\Characters</Filter>
     </ClCompile>
+    <Filter Include="Source\Slash\Private\Enemy">
+      <UniqueIdentifier>{A2656D01-BD74-3C43-B785-0C40E1BE9DED}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\Slash\Private\Enemy\Enemy.cpp">
+      <Filter>Source\Slash\Private\Enemy</Filter>
+    </ClCompile>
+    <Filter Include="Source\Slash\Private\Interfaces">
+      <UniqueIdentifier>{5628A298-851D-3158-B0AE-C5781A1AE124}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\Slash\Private\Interfaces\HitInterface.cpp">
+      <Filter>Source\Slash\Private\Interfaces</Filter>
+    </ClCompile>
     <Filter Include="Source\Slash\Private\Items">
       <UniqueIdentifier>{3DF3D363-0D69-3A5B-97AE-980F0AD3E09A}</UniqueIdentifier>
     </Filter>
@@ -89,11 +101,26 @@
     <Filter Include="Source\Slash\Public\Characters">
       <UniqueIdentifier>{22E7A9D7-1F66-3724-A0AD-BE9FB4D684EE}</UniqueIdentifier>
     </Filter>
+    <ClInclude Include="..\..\Source\Slash\Public\Characters\CharacterTypes.h">
+      <Filter>Source\Slash\Public\Characters</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Slash\Public\Characters\SlashAnimInstance.h">
       <Filter>Source\Slash\Public\Characters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Slash\Public\Characters\SlashCharacter.h">
       <Filter>Source\Slash\Public\Characters</Filter>
+    </ClInclude>
+    <Filter Include="Source\Slash\Public\Enemy">
+      <UniqueIdentifier>{032B8058-B610-3622-8B03-E90C7EBA94C6}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Source\Slash\Public\Enemy\Enemy.h">
+      <Filter>Source\Slash\Public\Enemy</Filter>
+    </ClInclude>
+    <Filter Include="Source\Slash\Public\Interfaces">
+      <UniqueIdentifier>{619F0835-4746-3C6D-860E-167656948E05}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Source\Slash\Public\Interfaces\HitInterface.h">
+      <Filter>Source\Slash\Public\Interfaces</Filter>
     </ClInclude>
     <Filter Include="Source\Slash\Public\Items">
       <UniqueIdentifier>{03EE9902-1225-3E3E-AF6E-23FDA4DA1733}</UniqueIdentifier>
@@ -112,11 +139,6 @@
     </Filter>
     <ClInclude Include="..\..\Source\Slash\Public\Pawns\Bird.h">
       <Filter>Source\Slash\Public\Pawns</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\Source\Slash\Public\Characters\CharacterTypes.h">
-      <Filter>Source\Slash\Public\Characters</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
