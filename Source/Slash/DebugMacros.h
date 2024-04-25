@@ -3,6 +3,7 @@
 #include<DrawDebugHelpers.h>
 
 #define DRAW_SPHERE( Location ) { if( GetWorld( ) ) DrawDebugSphere( GetWorld( ) , Location , 25.0f , 12 , FColor :: Red , true ) ; } // If true so debug sphere will never go away
+#define DRAW_SPHERE_COLOR( Location , Color ) { if( GetWorld( ) ) DrawDebugSphere( GetWorld( ) , Location , 10.0f , 12 , Color , false , 5.0f ) ; }
 #define DRAW_SPHERE_SINGLE_FRAME( Location ) { if( GetWorld( ) ) DrawDebugSphere( GetWorld( ) , Location , 25.0f , 12 , FColor :: Red , false , -1.0f ) ; }
 #define DRAW_LINE( Start_Location , End_Location ) { if( GetWorld( ) ) DrawDebugLine( GetWorld( ) , Start_Location , End_Location , FColor :: Red , true , -1.0f , 0 , 1.0f ) ; } 
 #define DRAW_LINE_SINGLE_FRAME( Location ) { if( GetWorld( ) ) DrawDebugLine( GetWorld( ) , Start_Location , End_Location , FColor :: Red , false , -1.0f , 0 , 1.0f ) ; } 

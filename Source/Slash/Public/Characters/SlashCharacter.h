@@ -51,7 +51,7 @@ protected:
 	UFUNCTION( BlueprintCallable )
 	void AttackEnd();
 	bool CanAttack() const ;
-	void PlayEquipMontage( FName SectionName ) ;
+	void PlayEquipMontage(const FName& SectionName ) ;
 	bool CanDisarm() const;
 	bool CanArm() const;
 

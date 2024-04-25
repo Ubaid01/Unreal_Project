@@ -35,6 +35,7 @@ void ASlashCharacter::SetWeaponCollisionEnabled(ECollisionEnabled::Type Collisio
 	if ( EquippedWeapon && EquippedWeapon -> GetWeaponBox( ) ) 
 	{
 		EquippedWeapon -> GetWeaponBox() -> SetCollisionEnabled(CollisionEnabled); 
+		EquippedWeapon -> IgnoreActors.Empty(); // Empty the IgnoreActors for each time the notify is ON-OFF
 	}
 }
 
@@ -150,7 +151,7 @@ void ASlashCharacter::EquipAction()
 	}
 }
 
-void ASlashCharacter::PlayEquipMontage(FName SectionName)
+void ASlashCharacter::PlayEquipMontage(const FName& SectionName)
 {
 
 	UAnimInstance* AnimInstance = GetMesh() -> GetAnimInstance();

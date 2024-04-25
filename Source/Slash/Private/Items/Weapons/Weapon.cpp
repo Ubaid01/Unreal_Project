@@ -7,6 +7,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Interfaces/HitInterface.h"
 
 AWeapon:: AWeapon() 
 {
@@ -44,7 +45,7 @@ void AWeapon::Equip(USceneComponent* InParent, FName InSocketName)
 
 	if (Sphere) 
 	{
-		Sphere -> SetCollisionEnabled( ECollisionEnabled :: NoCollision ) ; // Again setting sphere from Query only to No Collision preset as after attacking it was again doing all overlap events for weapon
+		Sphere -> SetCollisionEnabled( ECollisionEnabled :: NoCollision ) ; 
 	}
 }
 
@@ -72,10 +73,25 @@ void AWeapon::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 	const FVector End = BoxTraceEnd -> GetComponentLocation();
 
 	TArray <AActor*> ActorsToIgnore ;
-	ActorsToIgnore.Add(this); // To Ignore the Actor ( Weapon ) itself
+	ActorsToIgnore.Add(this); 
+
+	for (AActor* Actor : IgnoreActors) // Add the ignore actors for each time the function is called.
+	{
+		ActorsToIgnore.Add(Actor);
+	}
 
 	FHitResult BoxHit; // As passed in by reference so it will be filled just like in blueprint it is used as output node.
 
-	UKismetSystemLibrary::BoxTraceSingle(this, Start, End, FVector(5.0f, 5.0f, 5.0f), BoxTraceStart -> GetComponentRotation(), ETraceTypeQuery :: TraceTypeQuery1, false, ActorsToIgnore, EDrawDebugTrace :: ForDuration, BoxHit , true ) ;
+	UKismetSystemLibrary::BoxTraceSingle(this, Start, End, FVector(20.0f, 20.0f, 10.0f), BoxTraceStart -> GetComponentRotation(), ETraceTypeQuery :: TraceTypeQuery1, false, ActorsToIgnore, EDrawDebugTrace :: None , BoxHit , true ) ;
+
+	if ( BoxHit.GetActor() ) 
+	{
+		IHitInterface* HitInterface = Cast<IHitInterface>( BoxHit.GetActor() );
+		if (HitInterface) 
+		{
+			HitInterface -> GetHit(BoxHit.ImpactPoint);
+		}
+		IgnoreActors.AddUnique(BoxHit.GetActor()); // AddUnique to avoid duplication
+	}
 
 }

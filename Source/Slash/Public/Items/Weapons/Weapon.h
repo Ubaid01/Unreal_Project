@@ -22,7 +22,7 @@ public:
 	void Equip(USceneComponent* InParent, FName InSocketName);
 	void AttachMeshToSocket(USceneComponent* InParent, const FName& InSockentName);
 	FORCEINLINE UBoxComponent* GetWeaponBox() const { return WeaponBox;  }
-
+	TArray<AActor*> IgnoreActors;
 
 protected:
 
