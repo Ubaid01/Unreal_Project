@@ -56,6 +56,12 @@
     <Filter Include="Source\Slash\Private">
       <UniqueIdentifier>{C7B26820-BE6D-3F40-AEDA-61C93AD7A93B}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Slash\Private\Breakables">
+      <UniqueIdentifier>{4DB3F78D-BFA9-3837-B6BB-E0194EB512F2}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\Slash\Private\Breakables\BreakableActor.cpp">
+      <Filter>Source\Slash\Private\Breakables</Filter>
+    </ClCompile>
     <Filter Include="Source\Slash\Private\Characters">
       <UniqueIdentifier>{9BA98CFA-6127-392C-8A0A-29B5D28CDB9A}</UniqueIdentifier>
     </Filter>
@@ -98,6 +104,12 @@
     <Filter Include="Source\Slash\Public">
       <UniqueIdentifier>{C8A49F26-1F9B-35D4-8F2E-DBB7BA8DBEC9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Slash\Public\Breakables">
+      <UniqueIdentifier>{A203A95E-0C4A-3C80-B400-5794BA4250EC}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Source\Slash\Public\Breakables\BreakableActor.h">
+      <Filter>Source\Slash\Public\Breakables</Filter>
+    </ClInclude>
     <Filter Include="Source\Slash\Public\Characters">
       <UniqueIdentifier>{22E7A9D7-1F66-3724-A0AD-BE9FB4D684EE}</UniqueIdentifier>
     </Filter>

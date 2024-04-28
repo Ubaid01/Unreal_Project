@@ -35,6 +35,9 @@ protected:
 	UFUNCTION( )
 	void OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) ;
 
+	UFUNCTION( BlueprintImplementableEvent ) // We call this function from C++ but implement it from Blueprint so that no definition is required here.
+	void CreateFields(const FVector& FieldLoaction);
+
 private:
 
 	UPROPERTY( EditAnywhere , Category = "Weapons" )
