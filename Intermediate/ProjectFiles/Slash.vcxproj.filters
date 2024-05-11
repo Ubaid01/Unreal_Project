@@ -13,6 +13,7 @@
     </None>
     <None Include="..\..\.gitignore" />
     <None Include="..\..\.vsconfig" />
+    <None Include="..\..\AncientTreasures.png" />
     <None Include="..\..\C++_Unreal_Course_Functions.docx" />
     <None Include="..\..\README.md" />
     <None Include="..\..\Slash.png" />
@@ -71,11 +72,26 @@
     <ClCompile Include="..\..\Source\Slash\Private\Characters\SlashCharacter.cpp">
       <Filter>Source\Slash\Private\Characters</Filter>
     </ClCompile>
+    <Filter Include="Source\Slash\Private\Components">
+      <UniqueIdentifier>{40231054-0528-3097-B6DA-C250A04EFFFD}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\Slash\Private\Components\AttributeComponent.cpp">
+      <Filter>Source\Slash\Private\Components</Filter>
+    </ClCompile>
     <Filter Include="Source\Slash\Private\Enemy">
       <UniqueIdentifier>{A2656D01-BD74-3C43-B785-0C40E1BE9DED}</UniqueIdentifier>
     </Filter>
     <ClCompile Include="..\..\Source\Slash\Private\Enemy\Enemy.cpp">
       <Filter>Source\Slash\Private\Enemy</Filter>
+    </ClCompile>
+    <Filter Include="Source\Slash\Private\HUD">
+      <UniqueIdentifier>{D27E02BD-6CF5-3D7D-B486-99201CBDFDF0}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\Slash\Private\HUD\HealthBar.cpp">
+      <Filter>Source\Slash\Private\HUD</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Slash\Private\HUD\HealthBarComponent.cpp">
+      <Filter>Source\Slash\Private\HUD</Filter>
     </ClCompile>
     <Filter Include="Source\Slash\Private\Interfaces">
       <UniqueIdentifier>{5628A298-851D-3158-B0AE-C5781A1AE124}</UniqueIdentifier>
@@ -87,6 +103,9 @@
       <UniqueIdentifier>{3DF3D363-0D69-3A5B-97AE-980F0AD3E09A}</UniqueIdentifier>
     </Filter>
     <ClCompile Include="..\..\Source\Slash\Private\Items\Item.cpp">
+      <Filter>Source\Slash\Private\Items</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Slash\Private\Items\Treasure.cpp">
       <Filter>Source\Slash\Private\Items</Filter>
     </ClCompile>
     <Filter Include="Source\Slash\Private\Items\Weapons">
@@ -122,11 +141,26 @@
     <ClInclude Include="..\..\Source\Slash\Public\Characters\SlashCharacter.h">
       <Filter>Source\Slash\Public\Characters</Filter>
     </ClInclude>
+    <Filter Include="Source\Slash\Public\Components">
+      <UniqueIdentifier>{0CD8457F-0B6D-3663-8FF1-E6151C6DE560}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Source\Slash\Public\Components\AttributeComponent.h">
+      <Filter>Source\Slash\Public\Components</Filter>
+    </ClInclude>
     <Filter Include="Source\Slash\Public\Enemy">
       <UniqueIdentifier>{032B8058-B610-3622-8B03-E90C7EBA94C6}</UniqueIdentifier>
     </Filter>
     <ClInclude Include="..\..\Source\Slash\Public\Enemy\Enemy.h">
       <Filter>Source\Slash\Public\Enemy</Filter>
+    </ClInclude>
+    <Filter Include="Source\Slash\Public\HUD">
+      <UniqueIdentifier>{D89E9318-8F9C-314D-8640-C4A6CBD9C6BA}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Source\Slash\Public\HUD\HealthBar.h">
+      <Filter>Source\Slash\Public\HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Slash\Public\HUD\HealthBarComponent.h">
+      <Filter>Source\Slash\Public\HUD</Filter>
     </ClInclude>
     <Filter Include="Source\Slash\Public\Interfaces">
       <UniqueIdentifier>{619F0835-4746-3C6D-860E-167656948E05}</UniqueIdentifier>
@@ -138,6 +172,9 @@
       <UniqueIdentifier>{03EE9902-1225-3E3E-AF6E-23FDA4DA1733}</UniqueIdentifier>
     </Filter>
     <ClInclude Include="..\..\Source\Slash\Public\Items\Item.h">
+      <Filter>Source\Slash\Public\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Slash\Public\Items\Treasure.h">
       <Filter>Source\Slash\Public\Items</Filter>
     </ClInclude>
     <Filter Include="Source\Slash\Public\Items\Weapons">

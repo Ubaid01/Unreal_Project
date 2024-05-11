@@ -34,8 +34,10 @@ void AWeapon::BeginPlay()
 
 }
 
-void AWeapon::Equip(USceneComponent* InParent, FName InSocketName)
+void AWeapon::Equip( USceneComponent* InParent, FName InSocketName, AActor* NewOwner, APawn* NewInsitigator )
 {
+	SetOwner( NewOwner ); // Now when weapon is equipped ; it will be linked up with the Owner which can be found by GetOwner() .
+	SetInstigator( NewInsitigator );
 	AttachMeshToSocket(InParent, InSocketName) ; 
 	ItemState = EItemState::EIS_Equipped ;
 
@@ -88,10 +90,11 @@ void AWeapon::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 
 	FHitResult BoxHit; // As passed in by reference so it will be filled just like in blueprint it is used as output node.
 
-	UKismetSystemLibrary::BoxTraceSingle(this, Start, End, FVector(20.0f, 20.0f, 10.0f), BoxTraceStart -> GetComponentRotation(), ETraceTypeQuery :: TraceTypeQuery1, false, ActorsToIgnore, EDrawDebugTrace :: None , BoxHit , true ) ;
+	UKismetSystemLibrary::BoxTraceSingle(this, Start, End, FVector(20.0f, 20.0f, 13.0f), BoxTraceStart -> GetComponentRotation(), ETraceTypeQuery :: TraceTypeQuery1, false, ActorsToIgnore, EDrawDebugTrace :: None , BoxHit , true ) ;
 
 	if ( BoxHit.GetActor() ) 
 	{
+		UGameplayStatics :: ApplyDamage(BoxHit.GetActor(), Damage, GetInstigator() -> GetController(), this, UDamageType :: StaticClass() ) ;
 		IHitInterface* HitInterface = Cast<IHitInterface>( BoxHit.GetActor() );
 		if (HitInterface) 
 		{

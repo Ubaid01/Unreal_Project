@@ -128,7 +128,7 @@ void ASlashCharacter::EquipAction()
 	AWeapon* OverlappingWeapon = Cast<AWeapon>( GetOverlappingItem() );
 	if (OverlappingWeapon) 
 	{
-		OverlappingWeapon -> Equip(GetMesh(), FName("RightHandSocket"));
+		OverlappingWeapon -> Equip( GetMesh(), FName("RightHandSocket") , this , this );
 		CharacterState = ECharacterState :: ECS_EquippedOneHandWeapon ;
 		OverlappingItem = nullptr ; // After Attatching Item to mesh set that Item to Null.
 		EquippedWeapon = OverlappingWeapon ;

@@ -9,9 +9,6 @@
 class USoundBase;
 class UBoxComponent;
 
-/**
- * 
- */
 UCLASS()
 class SLASH_API AWeapon : public AItem
 {
@@ -19,7 +16,7 @@ class SLASH_API AWeapon : public AItem
 	
 public:
 	AWeapon();
-	void Equip(USceneComponent* InParent, FName InSocketName);
+	void Equip( USceneComponent* InParent, FName InSocketName , AActor* NewOwner , APawn* NewInsitigator );
 	void AttachMeshToSocket(USceneComponent* InParent, const FName& InSockentName);
 	FORCEINLINE UBoxComponent* GetWeaponBox() const { return WeaponBox;  }
 	TArray<AActor*> IgnoreActors;
@@ -51,4 +48,7 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* BoxTraceEnd;
+
+	UPROPERTY( EditAnywhere , Category = "Weapon Properties" )
+	float Damage = 20.0f ;
 };
