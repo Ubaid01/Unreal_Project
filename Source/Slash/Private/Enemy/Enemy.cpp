@@ -2,14 +2,17 @@
 
 
 #include "Enemy/Enemy.h"
+#include "AIController.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "Slash/DebugMacros.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "HUD/HealthBarComponent.h"
+#include "Components/WidgetComponent.h"
+#include "Components/AttributeComponent.h"
+#include "Perception/PawnSensingComponent.h"
 #include "Kismet/KismetSystemLibrary.h" 
 #include "Kismet/GameplayStatics.h"
-#include "Components/AttributeComponent.h"
-#include "Components/WidgetComponent.h"
-#include "HUD/HealthBarComponent.h"
+#include "Slash/DebugMacros.h"
 
 
 AEnemy::AEnemy()
@@ -27,6 +30,15 @@ AEnemy::AEnemy()
 	HealthBarWidget = CreateDefaultSubobject<UHealthBarComponent>( TEXT("HealthBar") ) ;
 	HealthBarWidget -> SetupAttachment( GetRootComponent() ) ;
 
+	GetCharacterMovement() -> bOrientRotationToMovement = true ;
+	bUseControllerRotationPitch = false ;
+	bUseControllerRotationYaw = false ;
+	bUseControllerRotationRoll = false ;
+
+	PawnSensing = CreateDefaultSubobject<UPawnSensingComponent>( TEXT("PawnSensing") ) ;
+	PawnSensing -> SightRadius = 4000.0f ;
+	PawnSensing -> SetPeripheralVisionAngle( 45.0f ) ;
+
 }
 
 void AEnemy::BeginPlay()
@@ -37,24 +49,126 @@ void AEnemy::BeginPlay()
 	{
 		HealthBarWidget -> SetVisibility( false ) ; 
 	}
+
+	EnemyController = Cast<AAIController>( GetController() );
+	MoveToTarget( PatrolTarget ) ;
+
+	if ( PawnSensing ) 
+	{
+		PawnSensing -> OnSeePawn.AddDynamic( this , &AEnemy::PawnSeen ) ;
+	}
 }
 
 void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if ( CombatTarget ) 
+	if ( EnemyState > EEnemyState :: EES_Patrolling ) // If EnemyState is more serious than Patrolling
 	{
-		const double DistanceToTarget = ( CombatTarget -> GetActorLocation() - GetActorLocation() ) .Size(); // Size() or Length() to get vector length.
+		CheckCombatTarget();
+	}
+	else 
+	{
+		CheckPatrolTarget();
+	}
+}
 
-		if ( DistanceToTarget > CombatRadius ) 
+void AEnemy::CheckCombatTarget()
+{
+
+	if (!InTargetRange( CombatTarget , CombatRadius ) ) // If we are not in range of combat target.
+	{
+		// Disable HealthBar widget and Unsee the CombatTarget which is SlashCharacter.
+		CombatTarget = nullptr;
+		if (HealthBarWidget)
 		{
-			CombatTarget = nullptr ;
-			if ( HealthBarWidget ) 
-			{
-				HealthBarWidget -> SetVisibility( false ) ;
-			}
+			HealthBarWidget -> SetVisibility(false);
 		}
+		// Losing interest
+		EnemyState = EEnemyState::EES_Patrolling ;
+		GetCharacterMovement( ) -> MaxWalkSpeed = 125.0f ; 
+		MoveToTarget( PatrolTarget ) ;
+	}
+	else if ( ! InTargetRange( CombatTarget , AttackRadius ) && EnemyState != EEnemyState::EES_Chasing ) // Since this function is called in Tick everyframe so only set it once to avoid bugs.
+	{
+		// Outside AttackRange ( Chase Character )
+		EnemyState = EEnemyState:: EES_Chasing ; 
+		GetCharacterMovement() -> MaxWalkSpeed = 300.0f ;
+		MoveToTarget( CombatTarget ) ;
+	}
+	else if ( InTargetRange(CombatTarget, AttackRadius) && EnemyState != EEnemyState::EES_Attacking ) 
+	{
+		// Inside AttackRange ; attack character.
+		EnemyState = EEnemyState::EES_Attacking ;
+		// TODO : AttackMontage
+	}
+}
+
+void AEnemy::CheckPatrolTarget()
+{
+	if ( InTargetRange( PatrolTarget, PatrolRadius) )
+	{
+		PatrolTarget = ChoosePatrolTarget( ) ;
+		const float WaitTime = FMath :: RandRange( WaitMin , WaitMax ) ;
+		GetWorldTimerManager( ).SetTimer( PatrolTimer, this, &AEnemy :: PatrolTimerFinished, WaitTime ); // After 5 secs ; our callback delegate  will be used on this ( same actor ) .
+	}
+}
+
+bool AEnemy::InTargetRange(AActor* Target, double Radius)
+{
+	if ( Target == nullptr ) return false ;
+
+	const double DistanceToTarget = (Target -> GetActorLocation( ) - GetActorLocation( ) ) . Size( ) ; // Size() or Length() to get vector length.
+	return DistanceToTarget <= Radius ;
+}
+
+void AEnemy::MoveToTarget( AActor* Target )
+{
+	if (EnemyController == nullptr || Target == nullptr) return ;
+	FAIMoveRequest MoveRequest; // struct
+	MoveRequest.SetGoalActor( Target );
+	MoveRequest.SetAcceptanceRadius( 15.0f ) ;
+	EnemyController -> MoveTo( MoveRequest ); // NavMesh was optional
+}
+
+AActor* AEnemy::ChoosePatrolTarget()
+{
+	TArray < AActor* > ValidTargets;
+	for (AActor* Target : PatrolTargets)
+	{
+		if (Target != PatrolTarget) // 1st check whether it is similiar to previous target or not.
+		{
+			ValidTargets.AddUnique(Target);
+		}
+	}
+	const int32 NumPatrolTargets = ValidTargets.Num();
+	if (NumPatrolTargets > 0)
+	{
+		const int32 SelectionValue = FMath::RandRange(0, NumPatrolTargets - 1);
+		return ValidTargets[SelectionValue] ; // Now change the PatrolTarget with this new target.
+	}
+
+	return nullptr ; // If empty TArray
+}
+
+void AEnemy::PatrolTimerFinished()
+{
+	MoveToTarget( PatrolTarget ) ;
+}
+
+void AEnemy::PawnSeen( APawn* SeenPawn )
+{
+	if (EnemyState == EEnemyState::EES_Chasing) return ; // To avoid delegate call multiple times.
+	if ( SeenPawn -> ActorHasTag( FName("SlashCharacter") ) )
+	{
+		if ( EnemyState != EEnemyState::EES_Attacking ) // Since if we are attacking no need to chase OR call PawnSeen.
+		{
+			EnemyState = EEnemyState::EES_Chasing ;
+		}
+		GetWorldTimerManager( ).ClearTimer( PatrolTimer ) ; // Since timer has been cleared so delegate will not be called and enemy will not move to next patrol point.
+		GetCharacterMovement( ) -> MaxWalkSpeed = 300.0f ;
+		CombatTarget = SeenPawn ;
+		MoveToTarget( CombatTarget ) ;
 	}
 }
 
@@ -64,7 +178,7 @@ void AEnemy::PlayHitReactMonatge( const FName& SectionName )
 	if (AnimInstance && HitReactMontage)
 	{
 		AnimInstance -> Montage_Play(HitReactMontage);
-		AnimInstance -> Montage_JumpToSection(SectionName, HitReactMontage);
+		AnimInstance -> Montage_JumpToSection( SectionName, HitReactMontage ) ;
 	}
 }
 
@@ -154,7 +268,7 @@ void AEnemy::PlayDeathMontage()
 	if (AnimInstance && DeathMontage)
 	{
 		AnimInstance -> Montage_Play(DeathMontage) ;
-		const int32 Selection = FMath :: RandRange( 0 , 6 ); // Is used to play different Montages Slots at random
+		const int32 Selection = FMath :: RandRange( 0 , 6 ); 
 		FName SectionName = FName();
 		switch (Selection)
 		{
@@ -187,16 +301,16 @@ void AEnemy::PlayDeathMontage()
 			DeathPose = EDeathPose :: EDP_Death7;
 			break;
 		default:
-			break; // Will give error even if last break NOT given
+			break;
 		}
 		AnimInstance -> Montage_JumpToSection(SectionName, DeathMontage);
 	}
-	GetCapsuleComponent() -> SetCollisionEnabled(ECollisionEnabled :: NoCollision) ;
-	SetLifeSpan( 60.0f ) ; // Reside the body for 1 minute.
 	if ( HealthBarWidget )
 	{
 		HealthBarWidget -> SetVisibility( false ) ; // Set Visibility of Widget to false ; for how many seconds dead enemy is stick around.
 	}
+	SetLifeSpan( 60.0f ) ; // Reset the body for 1 minute.
+	GetCapsuleComponent() -> SetCollisionEnabled(ECollisionEnabled :: NoCollision) ;
 }
 
 float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -204,9 +318,14 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 	if ( Attributes && HealthBarWidget ) 
 	{
 		Attributes -> ReceiveDamage( DamageAmount ) ;
-		HealthBarWidget -> SetHealthPercent( Attributes -> GetHealthPercent( ) ) ; // Already provided Function
+		HealthBarWidget -> SetHealthPercent( Attributes -> GetHealthPercent( ) ) ; 
 	}
 	CombatTarget = EventInstigator -> GetPawn( ) ; // No need to cast as we can store address of an operator of child class in its parent class.
+
+	// TO Make Enemy Chase when hit even from back
+	EnemyState = EEnemyState::EES_Chasing ;
+	GetCharacterMovement() -> MaxWalkSpeed = 300.0f ;
+	MoveToTarget( CombatTarget ) ;
 
 	return DamageAmount ;
 }
