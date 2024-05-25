@@ -3,18 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
-#include "Interfaces/HitInterface.h"
 #include "Characters/CharacterTypes.h"
+#include "Characters/BaseCharacter.h"
 #include "Enemy.generated.h"
 
-class UAnimMontage;
-class UAttributeComponent;
-class UHealthBarComponent;
 class UPawnSensingComponent;
+class UHealthBarComponent;
 
 UCLASS()
-class SLASH_API AEnemy : public ACharacter , public IHitInterface 
+class SLASH_API AEnemy : public ABaseCharacter 
 {
 	GENERATED_BODY()
 
@@ -23,7 +20,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
-	void DirectionalHitReact(const FVector& ImpactPoint);
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser ) override ;
 	void CheckPatrolTarget();
 	void CheckCombatTarget();
@@ -34,8 +30,7 @@ protected:
 	/* 
 		Montage Play Functions
 	*/
-	void PlayHitReactMonatge(const FName& SectionName); // Also used const referenced here to avoid copying
-	void PlayDeathMontage() ; // Die for Stephen
+	virtual void PlayDeathMontage() override ; 
 
 	UPROPERTY(BlueprintReadOnly) 
 	EDeathPose DeathPose = EDeathPose :: EDP_Alive;
@@ -50,34 +45,11 @@ protected:
 	EEnemyState EnemyState = EEnemyState :: EES_Patrolling ;
 
 private:
-
-	/* 
-	Components 
-	*/
-
-	UPROPERTY( VisibleAnywhere )
-	UAttributeComponent* Attributes;
-
-	UPROPERTY( VisibleAnywhere )
+	UPROPERTY(VisibleAnywhere)
 	UHealthBarComponent* HealthBarWidget;
 
 	UPROPERTY( VisibleAnywhere)
 	UPawnSensingComponent* PawnSensing;
-
-	/* 
-		Animation Montages 
-	*/
-	UPROPERTY( EditDefaultsOnly , Category = "Montages" )
-	UAnimMontage* HitReactMontage; // Don't forget to setup it in Blueprint also
-
-	UPROPERTY(EditDefaultsOnly, Category = "Montages")
-	UAnimMontage* DeathMontage;
-
-	UPROPERTY( EditAnywhere , Category = "Sounds")
-	USoundBase* HitSound;
-
-	UPROPERTY( EditAnywhere , Category = "Visual Effects")
-	UParticleSystem* HitParticles ;
 
 	UPROPERTY( ) // To make sure its initialize to nullptr not garbage.
 	AActor* CombatTarget ;

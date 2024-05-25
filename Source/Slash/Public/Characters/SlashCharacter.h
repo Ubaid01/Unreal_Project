@@ -3,19 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
 #include "CharacterTypes.h"
+#include "BaseCharacter.h"
 #include "SlashCharacter.generated.h"
 
 class USpringArmComponent;
 class UCameraComponent;
 class AItem;
 class UAnimMontage;
-class AWeapon;
-
 
 UCLASS()
-class SLASH_API ASlashCharacter : public ACharacter
+class SLASH_API ASlashCharacter : public ABaseCharacter
 {
 	GENERATED_BODY()
 
@@ -29,9 +27,6 @@ public:
 	FORCEINLINE AItem* GetOverlappingItem() const { return OverlappingItem; }
 	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState;  }
 
-	UFUNCTION(BlueprintCallable)
-	void SetWeaponCollisionEnabled(ECollisionEnabled :: Type CollisionEnabled); 
-
 protected:
 	virtual void BeginPlay() override;
 	/* 
@@ -42,15 +37,14 @@ protected:
 	void Turn(float Value);
 	void LookUp(float Value);
 	void EquipAction();
-	void Attack();
+	virtual void Attack() override ;
 
 	/* 
 	Play Montage Functions 
 	*/
-	void PlayAttackMontage();
-	UFUNCTION( BlueprintCallable )
-	void AttackEnd();
-	bool CanAttack() const ;
+	virtual void PlayAttackMontage() override ;
+	virtual void AttackEnd() override ;
+	virtual bool CanAttack() const override ;
 	void PlayEquipMontage(const FName& SectionName ) ;
 	bool CanDisarm() const;
 	bool CanArm() const;
@@ -79,15 +73,9 @@ private:
 	UPROPERTY( VisibleInstanceOnly ) 
 	AItem* OverlappingItem;
 
-	UPROPERTY(VisibleAnywhere, Category = "Weapon") // UPROPERTY so it particicaptes in garbage collection
-	AWeapon* EquippedWeapon ;
-
 	/* 
 		Animation Montages
 	*/
-
-	UPROPERTY( EditDefaultsOnly , Category = "Montages" )
-	UAnimMontage* AttackMontage;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Montages")
 	UAnimMontage* EquipMontage;

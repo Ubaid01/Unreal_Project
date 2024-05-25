@@ -30,15 +30,6 @@ ASlashCharacter::ASlashCharacter()
 
 }
 
-void ASlashCharacter::SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled)
-{
-	if ( EquippedWeapon && EquippedWeapon -> GetWeaponBox( ) ) 
-	{
-		EquippedWeapon -> GetWeaponBox() -> SetCollisionEnabled(CollisionEnabled); 
-		EquippedWeapon -> IgnoreActors.Empty(); // Empty the IgnoreActors for each time the notify is ON-OFF
-	}
-}
-
 void ASlashCharacter::BeginPlay()
 {
 	Super::BeginPlay();

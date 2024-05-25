@@ -13,7 +13,6 @@
     </None>
     <None Include="..\..\.gitignore" />
     <None Include="..\..\.vsconfig" />
-    <None Include="..\..\AncientTreasures.png" />
     <None Include="..\..\C++_Unreal_Course_Functions.docx" />
     <None Include="..\..\README.md" />
     <None Include="..\..\Slash.png" />
@@ -66,6 +65,9 @@
     <Filter Include="Source\Slash\Private\Characters">
       <UniqueIdentifier>{9BA98CFA-6127-392C-8A0A-29B5D28CDB9A}</UniqueIdentifier>
     </Filter>
+    <ClCompile Include="..\..\Source\Slash\Private\Characters\BaseCharacter.cpp">
+      <Filter>Source\Slash\Private\Characters</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Slash\Private\Characters\SlashAnimInstance.cpp">
       <Filter>Source\Slash\Private\Characters</Filter>
     </ClCompile>
@@ -132,6 +134,9 @@
     <Filter Include="Source\Slash\Public\Characters">
       <UniqueIdentifier>{22E7A9D7-1F66-3724-A0AD-BE9FB4D684EE}</UniqueIdentifier>
     </Filter>
+    <ClInclude Include="..\..\Source\Slash\Public\Characters\BaseCharacter.h">
+      <Filter>Source\Slash\Public\Characters</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Slash\Public\Characters\CharacterTypes.h">
       <Filter>Source\Slash\Public\Characters</Filter>
     </ClInclude>
