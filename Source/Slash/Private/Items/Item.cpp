@@ -22,6 +22,8 @@ AItem::AItem()
 	EmbersEffect = CreateDefaultSubobject<UNiagaraComponent>( TEXT("Embers") ) ;
 	EmbersEffect -> SetupAttachment(GetRootComponent());
 
+	ItemMesh -> SetCollisionResponseToAllChannels( ECollisionResponse :: ECR_Ignore ) ;
+	ItemMesh -> SetCollisionEnabled(ECollisionEnabled :: NoCollision); // Since each time we have to set collision disabled for each mesh ; so setting through C++ ; as we will never want out enemy or character to keep colliding with it.
 
 }
 

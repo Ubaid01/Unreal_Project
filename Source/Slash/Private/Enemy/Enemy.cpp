@@ -10,6 +10,7 @@
 #include "Components/WidgetComponent.h"
 #include "Components/AttributeComponent.h"
 #include "Perception/PawnSensingComponent.h"
+#include "Items/Weapons/Weapon.h"
 #include "Kismet/KismetSystemLibrary.h" 
 #include "Kismet/GameplayStatics.h"
 #include "Slash/DebugMacros.h"
@@ -54,6 +55,14 @@ void AEnemy::BeginPlay()
 	if ( PawnSensing ) 
 	{
 		PawnSensing -> OnSeePawn.AddDynamic( this , &AEnemy::PawnSeen ) ;
+	}
+
+	UWorld* World = GetWorld() ;
+	if ( World && WeaponClass ) 
+	{
+		AWeapon* DefaultWeapon = World -> SpawnActor<AWeapon>( WeaponClass ) ; // Since we are not providing location and rotation so we will need to specify ; we will have to attach it .
+		DefaultWeapon -> Equip(GetMesh(), FName("RightHandSocket"), this, this) ;
+		EquippedWeapon = DefaultWeapon ;
 	}
 }
 
@@ -245,7 +254,7 @@ void AEnemy::PlayDeathMontage()
 	{
 		HealthBarWidget -> SetVisibility( false ) ; // Set Visibility of Widget to false ; for how many seconds dead enemy is stick around.
 	}
-	SetLifeSpan( 60.0f ) ; // Reset the body for 1 minute.
+	SetLifeSpan( 45.0f ) ;
 	GetCapsuleComponent() -> SetCollisionEnabled(ECollisionEnabled :: NoCollision) ;
 }
 
@@ -264,6 +273,14 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 	MoveToTarget( CombatTarget ) ;
 
 	return DamageAmount ;
+}
+
+void AEnemy::Destroyed()
+{
+	if ( EquippedWeapon ) 
+	{
+		EquippedWeapon -> Destroy() ;
+	}
 }
 
 void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
