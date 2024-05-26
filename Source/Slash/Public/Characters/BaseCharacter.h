@@ -30,15 +30,20 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon") // UPROPERTY so it particicaptes in garbage collection
 	AWeapon* EquippedWeapon;
 
-	virtual void Attack() ; // Made virtual so to implement in Child class.
+	virtual void Attack() ;
 	virtual void PlayAttackMontage() ;
 
-	UFUNCTION(BlueprintCallable) // Since inheriting so only need UFUNCTION 1 time.
+	UFUNCTION(BlueprintCallable) 
 	virtual void AttackEnd();
-	virtual bool CanAttack() const ;
+	virtual bool CanAttack() ;
+	virtual bool IsAttributeAlive();
+
 	void DirectionalHitReact(const FVector& ImpactPoint);
-	void PlayHitReactMonatge(const FName& SectionName); // Also used const referenced here to avoid copying
+	void PlayHitReactMonatge(const FName& SectionName); 
 	virtual void PlayDeathMontage() ; // Die for Stephen
+	void PlayHitSound(const FVector& ImpactPoint) ;
+	void SpawnHitParticles( const FVector& ImpactPoint ) ;
+	virtual void HandleDamage( float DamageAmount ) ;
 
 	/* 
 	Animation Montages 
@@ -59,6 +64,7 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	UAttributeComponent* Attributes;
 
+private:
 	UPROPERTY(EditAnywhere, Category = "Sounds")
 	USoundBase* HitSound;
 

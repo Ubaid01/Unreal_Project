@@ -156,7 +156,7 @@ void ASlashCharacter::PlayEquipMontage(const FName& SectionName)
 
 }
 
-bool ASlashCharacter::CanAttack() const
+bool ASlashCharacter::CanAttack()
 {
 	return 	ActionState == EActionState :: EAS_Unoccupied && 
 		CharacterState != ECharacterState::ECS_Unequipped;
@@ -164,6 +164,7 @@ bool ASlashCharacter::CanAttack() const
 
 void ASlashCharacter::Attack()
 {
+	Super ::Attack() ;
 	if ( CanAttack( ) )
 	{
 		PlayAttackMontage() ;
@@ -174,6 +175,7 @@ void ASlashCharacter::Attack()
 
 void ASlashCharacter::PlayAttackMontage()
 {
+	Super :: PlayAttackMontage() ;
 	UAnimInstance* AnimInstance = GetMesh() -> GetAnimInstance();
 	if (AnimInstance && AttackMontage) // Check If AttackMontage is also set from Details in Blueprint OR Not
 	{

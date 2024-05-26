@@ -5,6 +5,7 @@
 #include "Components/BoxComponent.h"
 #include "Items/Weapons/Weapon.h"
 #include "Components/AttributeComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 
 ABaseCharacter::ABaseCharacter()
@@ -100,13 +101,42 @@ void ABaseCharacter::PlayDeathMontage()
 {
 }
 
+void ABaseCharacter::PlayHitSound(const FVector& ImpactPoint)
+{
+	if (HitSound)
+	{
+		UGameplayStatics :: PlaySoundAtLocation(this, HitSound, ImpactPoint);
+	}
+}
+
+void ABaseCharacter::SpawnHitParticles(const FVector& ImpactPoint)
+{
+	if ( HitParticles && GetWorld() )
+	{
+		UGameplayStatics :: SpawnEmitterAtLocation(GetWorld(), HitParticles, ImpactPoint); // Here we don't require UObjectWorldContext but UWorld pointer itself.
+	}
+}
+
+void ABaseCharacter::HandleDamage(float DamageAmount )
+{
+	if ( Attributes ) // Since all class shall not have HealthBarWidget so make it virtual and apply in that child class.
+	{
+		Attributes -> ReceiveDamage( DamageAmount ) ;
+	}
+}
+
 void ABaseCharacter::AttackEnd()
 {
 }
 
-bool ABaseCharacter::CanAttack() const
+bool ABaseCharacter::CanAttack() 
 {
 	return false;
+}
+
+bool ABaseCharacter::IsAttributeAlive()
+{
+	return Attributes && Attributes -> IsAlive() ;
 }
 
 void ABaseCharacter::SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled)

@@ -44,7 +44,7 @@ protected:
 	*/
 	virtual void PlayAttackMontage() override ;
 	virtual void AttackEnd() override ;
-	virtual bool CanAttack() const override ;
+	virtual bool CanAttack() override ;
 	void PlayEquipMontage(const FName& SectionName ) ;
 	bool CanDisarm() const;
 	bool CanArm() const;
