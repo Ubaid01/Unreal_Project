@@ -31,16 +31,20 @@ protected:
 	AWeapon* EquippedWeapon;
 
 	virtual void Attack() ;
-	virtual void PlayAttackMontage() ;
+	virtual int32 PlayAttackMontage() ;
+	int32 PlayRandomMontage(UAnimMontage* Montage , const TArray<FName>& SectionNames ) ;
+	virtual void Die() ;
+	virtual int32 PlayDeathMontage() ; 
+	void DisableCapsule() ;
 
 	UFUNCTION(BlueprintCallable) 
 	virtual void AttackEnd();
 	virtual bool CanAttack() ;
 	virtual bool IsAttributeAlive();
 
+	virtual void PlayMontageSection( UAnimMontage* Montage , const FName& SectionName ) ;
 	void DirectionalHitReact(const FVector& ImpactPoint);
 	void PlayHitReactMonatge(const FName& SectionName); 
-	virtual void PlayDeathMontage() ; // Die for Stephen
 	void PlayHitSound(const FVector& ImpactPoint) ;
 	void SpawnHitParticles( const FVector& ImpactPoint ) ;
 	virtual void HandleDamage( float DamageAmount ) ;
@@ -57,6 +61,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Montages")
 	UAnimMontage* DeathMontage;
 
+	UPROPERTY( EditDefaultsOnly, Category = "Combat" )
+	TArray<FName> AttackMontageSections ;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	TArray<FName> DeathMontageSections;
 	/*
 	Components
 	*/

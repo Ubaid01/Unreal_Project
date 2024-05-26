@@ -28,10 +28,14 @@ protected:
 	/* 
 		Montage Play Functions
 	*/
-	virtual void PlayDeathMontage() override ; 
+	virtual int32 PlayDeathMontage() override ; 
+	virtual void Die() override ;
+
+	UPROPERTY( EditAnywhere )
+	float DeathLifeSpan = 10.0f ;
 
 	UPROPERTY(BlueprintReadOnly) 
-	EDeathPose DeathPose ;
+	TEnumAsByte<EDeathPose> DeathPose ;
 
 	void CheckPatrolTarget();
 	void CheckCombatTarget();
@@ -45,7 +49,6 @@ protected:
 	EEnemyState EnemyState = EEnemyState :: EES_Patrolling ;
 
 	virtual void Attack() override ;
-	virtual void PlayAttackMontage() override ;
 	virtual bool CanAttack() override;
 	virtual void HandleDamage(float DamageAmount) override ;
 

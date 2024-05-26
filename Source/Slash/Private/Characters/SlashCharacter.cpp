@@ -173,33 +173,6 @@ void ASlashCharacter::Attack()
 	}
 }
 
-void ASlashCharacter::PlayAttackMontage()
-{
-	Super :: PlayAttackMontage() ;
-	UAnimInstance* AnimInstance = GetMesh() -> GetAnimInstance();
-	if (AnimInstance && AttackMontage) // Check If AttackMontage is also set from Details in Blueprint OR Not
-	{
-		AnimInstance -> Montage_Play(AttackMontage);
-		const int32 Selection = FMath :: RandRange(0, 2); // Is used to play different Montages Slots at random
-		FName SectionName = FName();
-		switch (Selection)
-		{
-		case 0:
-			SectionName = FName("Attack1");
-			break;
-		case 1:
-			SectionName = FName("Attack2");
-			break;
-		case 2:
-			SectionName = FName("Attack3");
-			break;
-		default:
-			break; // Will give error even if last break NOT given
-		}
-		AnimInstance -> Montage_JumpToSection(SectionName, AttackMontage);
-	}
-}
-
 void ASlashCharacter::AttackEnd()
 {
 	ActionState = EActionState::EAS_Unoccupied ;
