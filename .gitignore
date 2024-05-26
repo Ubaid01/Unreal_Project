@@ -1,20 +1,6 @@
 .vs
-Intermediate/ProjectFiles/UE5.vcxproj
-Intermediate/*
-!ProjectFiles*/
+Intermediate
 Content
-Binaries/*
-!UnrealEditor-Slash.dll
-!UnrealEditor.target 
-!SlashEditor.target
-!UnrealEditor.modules*/
-Saved/*
-webcache_4430
-Crashes*/
+Binaries
+Saved
 DerivedDataCache
-# **/AncientContent
-# **/BlackAlder
-# **/MedievalDungeon
-# **/Megascans
-# **/StarterContent
-# **/Alice_Mountain
