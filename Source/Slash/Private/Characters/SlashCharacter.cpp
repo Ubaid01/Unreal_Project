@@ -8,18 +8,15 @@
 #include "Items/Item.h"
 #include "Items/Weapons/Weapon.h"
 #include "Animation/AnimMontage.h"
-#include "Components/BoxComponent.h"
-
 
 ASlashCharacter::ASlashCharacter()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 	GetCharacterMovement() -> bOrientRotationToMovement = true ;
 	GetCharacterMovement() -> RotationRate = FRotator(0.0f, 400.0f, 0.0f);
-
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom -> SetupAttachment(GetRootComponent());
@@ -33,9 +30,22 @@ ASlashCharacter::ASlashCharacter()
 void ASlashCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
 	Tags.Add("SlashCharacter") ;
 	
+}
+
+void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	PlayerInputComponent -> BindAxis(FName("MoveForward"), this, &ASlashCharacter :: MoveForward);
+	PlayerInputComponent -> BindAxis(FName("MoveSideways"), this, &ASlashCharacter :: MoveSideways);
+	PlayerInputComponent -> BindAxis(FName("Turn"), this, &ASlashCharacter :: Turn);
+	PlayerInputComponent -> BindAxis(FName("LookUp"), this, &ASlashCharacter :: LookUp);
+	PlayerInputComponent -> BindAction(FName("Jump"), IE_Pressed , this, &ACharacter :: Jump);
+	PlayerInputComponent -> BindAction(FName("Equip"), IE_Pressed, this, &ASlashCharacter :: EquipAction );
+	PlayerInputComponent -> BindAction(FName("Attack"), IE_Pressed, this, &ASlashCharacter :: Attack);
+
 }
 
 void ASlashCharacter::MoveForward(float Value)
@@ -82,86 +92,34 @@ void ASlashCharacter::LookUp(float Value)
 	}
 }
 
-bool ASlashCharacter::CanDisarm() const
-{
-	return ActionState == EActionState::EAS_Unoccupied 
-		&& CharacterState != ECharacterState::ECS_Unequipped ;
-}
-
-bool ASlashCharacter::CanArm() const
-{
-	return ActionState == EActionState::EAS_Unoccupied
-		&& CharacterState == ECharacterState::ECS_Unequipped
-		&& EquippedWeapon ;
-}
-
-void ASlashCharacter::Disarm()
-{
-	if (EquippedWeapon) 
-	{
-		EquippedWeapon -> AttachMeshToSocket(GetMesh(), FName("SpineSocket"));
-	}
-}
-
-void ASlashCharacter::Arm()
-{
-	if (EquippedWeapon)
-	{
-		EquippedWeapon -> AttachMeshToSocket(GetMesh(), FName("RightHandSocket") );
-	}
-}
-
-void ASlashCharacter::FinsihEquipping()
-{
-	ActionState = EActionState::EAS_Unoccupied ; 
-}
-
 void ASlashCharacter::EquipAction()
 {
 	AWeapon* OverlappingWeapon = Cast<AWeapon>( GetOverlappingItem() );
 	if (OverlappingWeapon) 
 	{
-		OverlappingWeapon -> Equip( GetMesh(), FName("RightHandSocket") , this , this );
-		CharacterState = ECharacterState :: ECS_EquippedOneHandWeapon ;
-		OverlappingItem = nullptr ; // After Attatching Item to mesh set that Item to Null.
-		EquippedWeapon = OverlappingWeapon ;
+		EquipWeapon( OverlappingWeapon ) ;
 	}
 	else 
 	{
 		// So that it also no runs in between the attack animation
 		if ( CanDisarm( ) ) 
 		{
-			PlayEquipMontage(FName("UnEquip"));
-			CharacterState = ECharacterState::ECS_Unequipped;
-			ActionState = EActionState::EAS_EquippingWeapon ;
+			Disarm( ) ;
 		}
 		else if ( CanArm( ) ) 
 		{
-			PlayEquipMontage(FName("Equip"));
-			CharacterState = ECharacterState::ECS_EquippedOneHandWeapon;
-			ActionState = EActionState::EAS_EquippingWeapon ;
+			Arm( ) ;
 		}
 	}
 }
 
-void ASlashCharacter::PlayEquipMontage(const FName& SectionName)
+void ASlashCharacter :: EquipWeapon(AWeapon* Weapon) 
 {
-
-	UAnimInstance* AnimInstance = GetMesh() -> GetAnimInstance();
-	if (AnimInstance && EquipMontage) 
-	{
-		AnimInstance -> Montage_Play(EquipMontage);
-		AnimInstance -> Montage_JumpToSection(SectionName, EquipMontage);
-	}
-
+	Weapon -> Equip(GetMesh(), FName("RightHandSocket"), this, this) ;
+	CharacterState = ECharacterState :: ECS_EquippedOneHandWeapon ;
+	OverlappingItem = nullptr; // After Attatching Item to mesh set that Item to Null.
+	EquippedWeapon = Weapon;
 }
-
-bool ASlashCharacter::CanAttack()
-{
-	return 	ActionState == EActionState :: EAS_Unoccupied && 
-		CharacterState != ECharacterState::ECS_Unequipped;
-}
-
 void ASlashCharacter::Attack()
 {
 	Super ::Attack() ;
@@ -177,23 +135,69 @@ void ASlashCharacter::AttackEnd()
 {
 	ActionState = EActionState::EAS_Unoccupied ;
 }
-void ASlashCharacter::Tick(float DeltaTime)
+
+bool ASlashCharacter::CanAttack()
 {
-	Super::Tick(DeltaTime);
+	return 	ActionState == EActionState :: EAS_Unoccupied && 
+		CharacterState != ECharacterState::ECS_Unequipped;
+}
+
+bool ASlashCharacter::CanArm() const
+{
+	return ActionState == EActionState::EAS_Unoccupied
+		&& CharacterState == ECharacterState::ECS_Unequipped
+		&& EquippedWeapon ;
+}
+
+void ASlashCharacter::Arm() 
+{
+	PlayEquipMontage(FName("Equip"));
+	CharacterState = ECharacterState::ECS_EquippedOneHandWeapon;
+	ActionState = EActionState::EAS_EquippingWeapon;
+}
+
+bool ASlashCharacter::CanDisarm() const
+{
+	return ActionState == EActionState::EAS_Unoccupied 
+		&& CharacterState != ECharacterState::ECS_Unequipped ;
+}
+
+void ASlashCharacter::Disarm() 
+{
+	PlayEquipMontage(FName("UnEquip"));
+	CharacterState = ECharacterState::ECS_Unequipped;
+	ActionState = EActionState::EAS_EquippingWeapon;
+}
+
+void ASlashCharacter::AttachWeaponToHand()
+{
+	if (EquippedWeapon)
+	{
+		EquippedWeapon -> AttachMeshToSocket(GetMesh(), FName("RightHandSocket") );
+	}
+}
+
+void ASlashCharacter::AttachWeaponToBack()
+{
+	if (EquippedWeapon) 
+	{
+		EquippedWeapon -> AttachMeshToSocket(GetMesh(), FName("SpineSocket"));
+	}
+}
+
+void ASlashCharacter::PlayEquipMontage(const FName& SectionName)
+{
+
+	UAnimInstance* AnimInstance = GetMesh() -> GetAnimInstance();
+	if (AnimInstance && EquipMontage) 
+	{
+		AnimInstance -> Montage_Play(EquipMontage);
+		AnimInstance -> Montage_JumpToSection(SectionName, EquipMontage);
+	}
 
 }
 
-void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void ASlashCharacter::FinsihEquipping()
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	PlayerInputComponent -> BindAxis(FName("MoveForward"), this, &ASlashCharacter :: MoveForward);
-	PlayerInputComponent -> BindAxis(FName("MoveSideways"), this, &ASlashCharacter :: MoveSideways);
-	PlayerInputComponent -> BindAxis(FName("Turn"), this, &ASlashCharacter :: Turn);
-	PlayerInputComponent -> BindAxis(FName("LookUp"), this, &ASlashCharacter :: LookUp);
-	PlayerInputComponent -> BindAction(FName("Jump"), IE_Pressed , this, &ACharacter :: Jump);
-	PlayerInputComponent -> BindAction(FName("Equip"), IE_Pressed, this, &ASlashCharacter :: EquipAction );
-	PlayerInputComponent -> BindAction(FName("Attack"), IE_Pressed, this, &ASlashCharacter :: Attack);
-
+	ActionState = EActionState::EAS_Unoccupied ; 
 }
-

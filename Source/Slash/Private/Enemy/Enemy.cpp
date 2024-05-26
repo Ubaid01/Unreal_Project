@@ -11,8 +11,6 @@
 #include "Components/AttributeComponent.h"
 #include "Perception/PawnSensingComponent.h"
 #include "Items/Weapons/Weapon.h"
-#include "Kismet/KismetSystemLibrary.h" 
-#include "Slash/DebugMacros.h"
 
 
 AEnemy::AEnemy()
@@ -42,25 +40,14 @@ AEnemy::AEnemy()
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	HideHealthBar() ;
-
-	EnemyController = Cast<AAIController>( GetController() );
-	MoveToTarget( PatrolTarget ) ;
-
 	if ( PawnSensing ) 
 	{
 		PawnSensing -> OnSeePawn.AddDynamic( this , &AEnemy::PawnSeen ) ;
 	}
+	InitializeEnemy();
 
-	UWorld* World = GetWorld() ;
-	if ( World && WeaponClass ) 
-	{
-		AWeapon* DefaultWeapon = World -> SpawnActor<AWeapon>( WeaponClass ) ; // Since we are not providing location and rotation so we will need to specify ; we will have to attach it .
-		DefaultWeapon -> Equip(GetMesh(), FName("RightHandSocket"), this, this) ;
-		EquippedWeapon = DefaultWeapon ;
-	}
 }
+
 
 void AEnemy::Tick(float DeltaTime)
 {
@@ -78,40 +65,70 @@ void AEnemy::Tick(float DeltaTime)
 	}
 }
 
-bool AEnemy::IsDead() const
+float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	return EnemyState == EEnemyState::EES_Dead ;
+	HandleDamage( DamageAmount ) ;
+	CombatTarget = EventInstigator -> GetPawn( ) ; // No need to cast as we can store address of an operator of child class in its parent class.
+
+	// TO Make Enemy Chase when hit even from back
+	ChaseTarget( ) ;
+
+	return DamageAmount ;
 }
 
-bool AEnemy::IsOutsideRadius( float Radius ) 
+void AEnemy::Destroyed()
 {
-	return !InTargetRange(CombatTarget, Radius) ; // As it is checking a non-const function so can't make const.
+	if ( EquippedWeapon ) 
+	{
+		EquippedWeapon -> Destroy() ;
+	}
 }
 
-bool AEnemy::IsInsideAttackRadius()
+void AEnemy::GetHit_Implementation(const FVector& ImpactPoint)
 {
-	return InTargetRange(CombatTarget, AttackRadius) ;
+	ShowHealthBar() ;
+
+	if ( IsAttributeAlive() ) 
+	{
+		DirectionalHitReact(ImpactPoint);
+	}
+	else 
+		Die();
+
+	PlayHitSound( ImpactPoint ) ;
+	SpawnHitParticles( ImpactPoint ) ;
+
 }
 
-bool AEnemy::IsChasing() const
+void AEnemy::Die()
 {
-	return EnemyState == EEnemyState::EES_Chasing ;
+	EnemyState = EEnemyState::EES_Dead;
+	PlayDeathMontage() ;
+	ClearAttackTimer() ;
+	HideHealthBar();
+	DisableCapsule();
+	SetLifeSpan( DeathLifeSpan ) ;
+	GetCharacterMovement() -> bOrientRotationToMovement = false ; // Set Rotation to false as after dying enemy was rotating its body to adjust themselves.
 }
 
-bool AEnemy:: IsAttacking() const 
+void AEnemy::Attack()
 {
-	return EnemyState == EEnemyState::EES_Attacking ;
-}
-
-bool AEnemy:: IsEngaged() const
-{
-	return EnemyState == EEnemyState :: EES_Engaged ;
+	Super :: Attack() ;
+	EnemyState = EEnemyState::EES_Engaged ; 
+	PlayAttackMontage() ;
 }
 
 bool AEnemy::CanAttack() 
 {
-	const bool bCanAttack = IsInsideAttackRadius() && !IsAttacking() ;
+	const bool bCanAttack = IsInsideAttackRadius() && !IsAttacking() 
+							&& !IsDead() && !IsEngaged() ;
 	return bCanAttack;
+}
+
+void AEnemy::AttackEnd()
+{
+	EnemyState = EEnemyState::EES_NoState ;
+	CheckCombatTarget() ;
 }
 
 void AEnemy::HandleDamage(float DamageAmount)
@@ -121,6 +138,18 @@ void AEnemy::HandleDamage(float DamageAmount)
 	{
 		HealthBarWidget -> SetHealthPercent( Attributes -> GetHealthPercent() ) ;
 	}
+}
+
+int32 AEnemy::PlayDeathMontage()
+{
+	const int32 Selection = Super :: PlayDeathMontage() ; // Returned int32 as we had to setup death-pose depending on death-montage also.
+	TEnumAsByte<EDeathPose> Pose( Selection ) ; // This Byte Wrapper will set the value of template to parameter ; here Pose to Selection .
+
+	if( Pose < EDeathPose :: EDP_MAX )
+		DeathPose = Pose ;
+
+	return Selection ;
+
 }
 
 void AEnemy::ShowHealthBar()
@@ -139,11 +168,25 @@ void AEnemy::HideHealthBar()
 	}
 }
 
-void AEnemy::LoseInterest()
+void AEnemy::PawnSeen( APawn* SeenPawn )
 {
-	// Disable HealthBar widget and UnSee the CombatTarget which is SlashCharacter.
-	CombatTarget = nullptr;
+	// Check Not Chasing To avoid delegate call multiple times.
+	const bool bShouldChaseTarget = ( EnemyState != EEnemyState::EES_Dead ) && ( EnemyState != EEnemyState :: EES_Chasing ) && ( EnemyState < EEnemyState::EES_Attacking ) && (SeenPawn -> ActorHasTag(FName("SlashCharacter") ) );
+
+	if ( bShouldChaseTarget ) 
+	{
+		CombatTarget = SeenPawn ;
+		ClearPatrolTimer();
+		ChaseTarget() ;
+	}
+}
+
+void AEnemy :: InitializeEnemy() 
+{
+	EnemyController = Cast<AAIController>(GetController());
+	MoveToTarget(PatrolTarget);
 	HideHealthBar();
+	SpawnDefaultWeapon();
 }
 
 void AEnemy::StartPatrolling()
@@ -153,11 +196,39 @@ void AEnemy::StartPatrolling()
 	MoveToTarget(PatrolTarget);
 }
 
-void AEnemy :: ChaseTarget() 
+AActor* AEnemy::ChoosePatrolTarget()
 {
-	EnemyState = EEnemyState:: EES_Chasing;
-	GetCharacterMovement() -> MaxWalkSpeed = ChasingSpeed;
-	MoveToTarget(CombatTarget);
+	TArray < AActor* > ValidTargets;
+	for (AActor* Target : PatrolTargets)
+	{
+		if (Target != PatrolTarget) // 1st check whether it is similiar to previous target or not.
+		{
+			ValidTargets.AddUnique(Target);
+		}
+	}
+	const int32 NumPatrolTargets = ValidTargets.Num();
+	if (NumPatrolTargets > 0)
+	{
+		const int32 SelectionValue = FMath::RandRange(0, NumPatrolTargets - 1);
+		return ValidTargets[SelectionValue] ; // Now change the PatrolTarget with this new target.
+	}
+
+	return nullptr ; // If empty TArray
+}
+
+void AEnemy::CheckPatrolTarget()
+{
+	if ( InTargetRange( PatrolTarget, PatrolRadius) )
+	{
+		PatrolTarget = ChoosePatrolTarget( ) ;
+		const float WaitTime = FMath :: RandRange( PatrolWaitMin , PatrolWaitMax ) ;
+		GetWorldTimerManager( ).SetTimer( PatrolTimer, this, &AEnemy :: PatrolTimerFinished, WaitTime ); // After 5 secs ; our callback delegate  will be used on this ( same actor ) .
+	}
+}
+
+void AEnemy::PatrolTimerFinished()
+{
+	MoveToTarget( PatrolTarget ) ;
 }
 
 void AEnemy::ClearPatrolTimer() 
@@ -165,16 +236,33 @@ void AEnemy::ClearPatrolTimer()
 	GetWorldTimerManager().ClearTimer(PatrolTimer); // Since timer has been cleared so delegate will not be called and enemy will not move to next patrol point.
 }
 
-void AEnemy::ClearAttackTimer()
+void AEnemy::MoveToTarget( AActor* Target )
 {
-	GetWorldTimerManager().ClearTimer(AttackTimer); 
+	if (EnemyController == nullptr || Target == nullptr) return ;
+	FAIMoveRequest MoveRequest; // struct
+	MoveRequest.SetGoalActor( Target );
+	MoveRequest.SetAcceptanceRadius( 50.0f ) ;
+	EnemyController -> MoveTo( MoveRequest ); // NavMesh was optional
 }
 
-void AEnemy :: StartAttackTimer()
+bool AEnemy::InTargetRange(AActor* Target, double Radius)
 {
-	EnemyState = EEnemyState::EES_Attacking ;
-	const float AttackTime = FMath :: RandRange( AttackMin, AttackMax ) ;
-	GetWorldTimerManager() . SetTimer( AttackTimer, this, &AEnemy :: Attack, AttackTime ) ;
+	if ( Target == nullptr ) return false ;
+
+	const double DistanceToTarget = (Target -> GetActorLocation( ) - GetActorLocation( ) ) . Size( ) ; // Size() or Length() to get vector length.
+	return DistanceToTarget <= Radius ;
+}
+
+void AEnemy::SpawnDefaultWeapon()
+{
+
+	UWorld* World = GetWorld();
+	if (World && WeaponClass)
+	{
+		AWeapon* DefaultWeapon = World -> SpawnActor<AWeapon>(WeaponClass); // Since we are not providing location and rotation so we will need to specify ; we will have to attach it .
+		DefaultWeapon -> Equip(GetMesh(), FName("RightHandSocket"), this, this);
+		EquippedWeapon = DefaultWeapon;
+	}
 }
 
 void AEnemy::CheckCombatTarget()
@@ -201,131 +289,58 @@ void AEnemy::CheckCombatTarget()
 	}
 }
 
-void AEnemy::CheckPatrolTarget()
+void AEnemy::LoseInterest()
 {
-	if ( InTargetRange( PatrolTarget, PatrolRadius) )
-	{
-		PatrolTarget = ChoosePatrolTarget( ) ;
-		const float WaitTime = FMath :: RandRange( WaitMin , WaitMax ) ;
-		GetWorldTimerManager( ).SetTimer( PatrolTimer, this, &AEnemy :: PatrolTimerFinished, WaitTime ); // After 5 secs ; our callback delegate  will be used on this ( same actor ) .
-	}
-}
-
-bool AEnemy::InTargetRange(AActor* Target, double Radius)
-{
-	if ( Target == nullptr ) return false ;
-
-	const double DistanceToTarget = (Target -> GetActorLocation( ) - GetActorLocation( ) ) . Size( ) ; // Size() or Length() to get vector length.
-	return DistanceToTarget <= Radius ;
-}
-
-void AEnemy::MoveToTarget( AActor* Target )
-{
-	if (EnemyController == nullptr || Target == nullptr) return ;
-	FAIMoveRequest MoveRequest; // struct
-	MoveRequest.SetGoalActor( Target );
-	MoveRequest.SetAcceptanceRadius( 50.0f ) ;
-	EnemyController -> MoveTo( MoveRequest ); // NavMesh was optional
-}
-
-AActor* AEnemy::ChoosePatrolTarget()
-{
-	TArray < AActor* > ValidTargets;
-	for (AActor* Target : PatrolTargets)
-	{
-		if (Target != PatrolTarget) // 1st check whether it is similiar to previous target or not.
-		{
-			ValidTargets.AddUnique(Target);
-		}
-	}
-	const int32 NumPatrolTargets = ValidTargets.Num();
-	if (NumPatrolTargets > 0)
-	{
-		const int32 SelectionValue = FMath::RandRange(0, NumPatrolTargets - 1);
-		return ValidTargets[SelectionValue] ; // Now change the PatrolTarget with this new target.
-	}
-
-	return nullptr ; // If empty TArray
-}
-
-void AEnemy::PatrolTimerFinished()
-{
-	MoveToTarget( PatrolTarget ) ;
-}
-
-void AEnemy::PawnSeen( APawn* SeenPawn )
-{
-	// Check Not Chasing To avoid delegate call multiple times.
-	const bool bShouldChaseTarget = ( EnemyState != EEnemyState::EES_Dead ) && ( EnemyState != EEnemyState :: EES_Chasing ) && ( EnemyState < EEnemyState::EES_Attacking ) && (SeenPawn -> ActorHasTag(FName("SlashCharacter") ) );
-
-	if ( bShouldChaseTarget ) 
-	{
-		CombatTarget = SeenPawn ;
-		ClearPatrolTimer();
-		ChaseTarget() ;
-	}
-}
-
-void AEnemy::Attack()
-{
-	Super :: Attack() ;
-	PlayAttackMontage() ;
-}
-
-void AEnemy::GetHit_Implementation(const FVector& ImpactPoint)
-{
-	ShowHealthBar() ;
-
-	if ( IsAttributeAlive() ) 
-	{
-		DirectionalHitReact(ImpactPoint);
-	}
-	else 
-		Die();
-
-	PlayHitSound( ImpactPoint ) ;
-	SpawnHitParticles( ImpactPoint ) ;
-
-}
-
-int32 AEnemy::PlayDeathMontage()
-{
-	const int32 Selection = Super :: PlayDeathMontage() ; // Returned int32 as we had to setup death-pose depending on death-montage also.
-	TEnumAsByte<EDeathPose> Pose( Selection ) ; // This Byte Wrapper will set the value of template to parameter ; here Pose to Selection .
-
-	if( Pose < EDeathPose :: EDP_MAX )
-		DeathPose = Pose ;
-
-	return Selection ;
-
-}
-
-void AEnemy::Die()
-{
-	EnemyState = EEnemyState::EES_Dead;
-	PlayDeathMontage() ;
-	ClearAttackTimer() ;
+	// Disable HealthBar widget and UnSee the CombatTarget which is SlashCharacter.
+	CombatTarget = nullptr;
 	HideHealthBar();
-	DisableCapsule();
-	SetLifeSpan( DeathLifeSpan ) ;
-	GetCharacterMovement() -> bOrientRotationToMovement = false ; // Set Rotation to false as after dying enemy was rotating its body to adjust themselves.
 }
 
-float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+void AEnemy :: ChaseTarget() 
 {
-	HandleDamage( DamageAmount ) ;
-	CombatTarget = EventInstigator -> GetPawn( ) ; // No need to cast as we can store address of an operator of child class in its parent class.
-
-	// TO Make Enemy Chase when hit even from back
-	ChaseTarget( ) ;
-
-	return DamageAmount ;
+	EnemyState = EEnemyState:: EES_Chasing;
+	GetCharacterMovement() -> MaxWalkSpeed = ChasingSpeed;
+	MoveToTarget(CombatTarget);
 }
 
-void AEnemy::Destroyed()
+void AEnemy :: StartAttackTimer()
 {
-	if ( EquippedWeapon ) 
-	{
-		EquippedWeapon -> Destroy() ;
-	}
+	EnemyState = EEnemyState::EES_Attacking ;
+	const float AttackTime = FMath :: RandRange( AttackMin, AttackMax ) ;
+	GetWorldTimerManager() . SetTimer( AttackTimer, this, &AEnemy :: Attack, AttackTime ) ;
+}
+
+void AEnemy::ClearAttackTimer()
+{
+	GetWorldTimerManager().ClearTimer(AttackTimer); 
+}
+
+bool AEnemy::IsOutsideRadius( float Radius ) 
+{
+	return !InTargetRange(CombatTarget, Radius) ; // As it is checking a non-const function so can't make const.
+}
+
+bool AEnemy::IsInsideAttackRadius()
+{
+	return InTargetRange(CombatTarget, AttackRadius) ;
+}
+
+bool AEnemy::IsChasing() const
+{
+	return EnemyState == EEnemyState::EES_Chasing ;
+}
+
+bool AEnemy:: IsAttacking() const 
+{
+	return EnemyState == EEnemyState::EES_Attacking ;
+}
+
+bool AEnemy::IsDead() const
+{
+	return EnemyState == EEnemyState::EES_Dead ;
+}
+
+bool AEnemy:: IsEngaged() const
+{
+	return EnemyState == EEnemyState :: EES_Engaged ;
 }
