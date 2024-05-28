@@ -37,9 +37,8 @@ protected:
 	void ExecuteGetHit(FHitResult& BoxHit);
 
 private:
-
 	void BoxTrace( FHitResult& BoxHit ) ;
-	bool ActorIsSameType(AActor* OtherActor);
+	bool ActorIsSameType( AActor* OtherActor ) ;
 
 	UPROPERTY( EditAnywhere, Category = "Weapon Properties" )
 	FVector BoxTracExtent = FVector( 5.0f ) ;

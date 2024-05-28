@@ -85,19 +85,12 @@ void AEnemy::Destroyed()
 	}
 }
 
-void AEnemy::GetHit_Implementation(const FVector& ImpactPoint)
+void AEnemy::GetHit_Implementation(const FVector& ImpactPoint, AActor* Attacker )
 {
-	ShowHealthBar() ;
-
-	if ( IsAttributeAlive() ) 
-	{
-		DirectionalHitReact(ImpactPoint);
-	}
-	else 
-		Die();
-
-	PlayHitSound( ImpactPoint ) ;
-	SpawnHitParticles( ImpactPoint ) ;
+	Super :: GetHit_Implementation( ImpactPoint , Attacker ) ;
+	if( ! IsDead() ) 
+		ShowHealthBar() ;
+	ClearPatrolTimer() ;
 
 }
 
@@ -110,6 +103,7 @@ void AEnemy::Die()
 	DisableCapsule();
 	SetLifeSpan( DeathLifeSpan ) ;
 	GetCharacterMovement() -> bOrientRotationToMovement = false ; // Set Rotation to false as after dying enemy was rotating its body to adjust themselves.
+	SetWeaponCollisionEnabled( ECollisionEnabled :: NoCollision ) ;
 }
 
 void AEnemy::Attack()

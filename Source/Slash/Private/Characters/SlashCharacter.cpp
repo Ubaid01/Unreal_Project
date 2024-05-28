@@ -55,10 +55,11 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 }
 
-void ASlashCharacter::GetHit_Implementation( const FVector& ImpactPoint ) 
+void ASlashCharacter::GetHit_Implementation( const FVector& ImpactPoint, AActor* Attacker )
 {
-	PlayHitSound( ImpactPoint ) ;
-	SpawnHitParticles( ImpactPoint ) ;
+	Super :: GetHit_Implementation( ImpactPoint , Attacker ) ;
+	SetWeaponCollisionEnabled( ECollisionEnabled :: NoCollision ) ;
+	ActionState = EActionState::EAS_HitReaction ;
 }
 
 void ASlashCharacter::MoveForward(float Value)
@@ -198,6 +199,16 @@ void ASlashCharacter::AttachWeaponToBack()
 	}
 }
 
+void ASlashCharacter::HitReactEnd()
+{
+	ActionState = EActionState::EAS_Unoccupied ;
+}
+
+void ASlashCharacter::FinsihEquipping()
+{
+	ActionState = EActionState::EAS_Unoccupied;
+}
+
 void ASlashCharacter::PlayEquipMontage(const FName& SectionName)
 {
 
@@ -208,9 +219,4 @@ void ASlashCharacter::PlayEquipMontage(const FName& SectionName)
 		AnimInstance -> Montage_JumpToSection(SectionName, EquipMontage);
 	}
 
-}
-
-void ASlashCharacter::FinsihEquipping()
-{
-	ActionState = EActionState::EAS_Unoccupied ; 
 }

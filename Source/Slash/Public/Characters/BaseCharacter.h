@@ -22,6 +22,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void GetHit_Implementation( const FVector& ImpactPoint , AActor* Attacker ) override ;
 
 	/* Combat */
 	virtual void Attack() ;

@@ -22,6 +22,19 @@ void ABaseCharacter::BeginPlay()
 	
 }
 
+void ABaseCharacter::GetHit_Implementation(const FVector& ImpactPoint , AActor* Attacker )
+{
+	if ( IsAttributeAlive() )
+	{
+		DirectionalHitReact( Attacker -> GetActorLocation() ) ;
+	}
+	else 
+		Die() ;
+
+	PlayHitSound( ImpactPoint ) ;
+	SpawnHitParticles( ImpactPoint ) ;
+}
+
 void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -70,7 +83,7 @@ void ABaseCharacter::PlayMontageSection(UAnimMontage* Montage, const FName& Sect
 	}
 }
 
-void ABaseCharacter::DirectionalHitReact(const FVector& ImpactPoint)
+void ABaseCharacter::DirectionalHitReact(const FVector& ImpactPoint )
 {
 	const FVector Forward = GetActorForwardVector();
 	// Lower Impact Point to the Enemy's Actor Elevation so that parallel to the ground ( Different due to different animations ) .
