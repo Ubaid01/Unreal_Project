@@ -39,13 +39,14 @@ AEnemy::AEnemy()
 
 void AEnemy::BeginPlay()
 {
-	Super::BeginPlay();
+	Super::BeginPlay() ;
+
 	if ( PawnSensing ) 
 	{
 		PawnSensing -> OnSeePawn.AddDynamic( this , &AEnemy::PawnSeen ) ;
 	}
 	InitializeEnemy();
-
+	Tags.Add(FName("Enemy"));
 }
 
 
@@ -171,7 +172,7 @@ void AEnemy::HideHealthBar()
 void AEnemy::PawnSeen( APawn* SeenPawn )
 {
 	// Check Not Chasing To avoid delegate call multiple times.
-	const bool bShouldChaseTarget = ( EnemyState != EEnemyState::EES_Dead ) && ( EnemyState != EEnemyState :: EES_Chasing ) && ( EnemyState < EEnemyState::EES_Attacking ) && (SeenPawn -> ActorHasTag(FName("SlashCharacter") ) );
+	const bool bShouldChaseTarget = ( EnemyState != EEnemyState::EES_Dead ) && ( EnemyState != EEnemyState :: EES_Chasing ) && ( EnemyState < EEnemyState::EES_Attacking ) && (SeenPawn -> ActorHasTag(FName("EngageableTarget") ) );
 
 	if ( bShouldChaseTarget ) 
 	{
@@ -267,7 +268,6 @@ void AEnemy::SpawnDefaultWeapon()
 
 void AEnemy::CheckCombatTarget()
 {
-
 	if ( IsOutsideRadius( CombatRadius ) ) 
 	{
 		ClearAttackTimer() ;

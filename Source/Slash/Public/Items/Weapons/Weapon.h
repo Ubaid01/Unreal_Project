@@ -25,19 +25,29 @@ protected:
 
 	virtual void BeginPlay() override;
 	// UFUNCTION() Macro is also inherited so no need to again write
-	virtual void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override ;
-
-	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override ;
 
 	UFUNCTION( )
 	void OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) ;
 
 	UFUNCTION( BlueprintImplementableEvent ) // We call this function from C++ but implement it from Blueprint so that no definition is required here.
 	void CreateFields(const FVector& FieldLoaction);
+	void DeactivateEmbers();
+	void DisableSphereCollision();
+	void PlayEquipSound();
+	void ExecuteGetHit(FHitResult& BoxHit);
 
 private:
 
-	UPROPERTY( EditAnywhere , Category = "Weapons" )
+	void BoxTrace( FHitResult& BoxHit ) ;
+	bool ActorIsSameType(AActor* OtherActor);
+
+	UPROPERTY( EditAnywhere, Category = "Weapon Properties" )
+	FVector BoxTracExtent = FVector( 5.0f ) ;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	bool bShowDebugBox = false ;
+
+	UPROPERTY( EditAnywhere , Category = "Weapon Properties" )
 	USoundBase* EquipSound ;
 
 	UPROPERTY( VisibleAnywhere , Category = "Weapon Properties" )
