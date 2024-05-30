@@ -71,9 +71,14 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 	HandleDamage( DamageAmount ) ;
 	CombatTarget = EventInstigator -> GetPawn( ) ; // No need to cast as we can store address of an operator of child class in its parent class.
 
-	// TO Make Enemy Chase when hit even from back
-	ChaseTarget( ) ;
-
+	if ( IsInsideAttackRadius() ) 
+	{
+		EnemyState = EEnemyState::EES_Attacking ;
+	}
+	else if ( IsOutsideRadius(AttackRadius) )
+	{
+		ChaseTarget() ; // So we don't need to compute distance multiple times.
+	}
 	return DamageAmount ;
 }
 
@@ -91,6 +96,9 @@ void AEnemy::GetHit_Implementation(const FVector& ImpactPoint, AActor* Attacker 
 	if( ! IsDead() ) 
 		ShowHealthBar() ;
 	ClearPatrolTimer() ;
+	ClearAttackTimer() ;
+	SetWeaponCollisionEnabled(ECollisionEnabled :: NoCollision);
+	StopAttackMontage() ;
 
 }
 

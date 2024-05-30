@@ -44,13 +44,24 @@ protected:
 	virtual int32 PlayAttackMontage();
 	void PlayHitReactMonatge(const FName& SectionName);
 	virtual int32 PlayDeathMontage();
-	/* <Animation Montages */
+	void StopAttackMontage() ;
 
+	/* <Animation Montages */
+	UFUNCTION( BlueprintCallable )
+	FVector GetTranslationWarpTarget() ;
+	UFUNCTION( BlueprintCallable )
+	FVector GetRotationWarpTarget();
 	virtual bool IsAttributeAlive();
+
 	UPROPERTY(VisibleAnywhere, Category = "Weapon") // UPROPERTY so it particicaptes in garbage collection
 	AWeapon* EquippedWeapon;
 	UPROPERTY(VisibleAnywhere)
 	UAttributeComponent* Attributes;
+	UPROPERTY(BlueprintReadOnly, Category = "Combat") // For Motion Warping
+	AActor* CombatTarget;
+
+	UPROPERTY( EditAnywhere , Category = "Combat" )
+	double WarpTargetDistance = 75.0f ;
 
 private:
 	virtual void PlayMontageSection(UAnimMontage* Montage, const FName& SectionName);

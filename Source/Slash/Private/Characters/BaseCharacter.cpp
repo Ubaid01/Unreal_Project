@@ -7,6 +7,7 @@
 #include "Components/AttributeComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Slash/DebugMacros.h"
 
 
 ABaseCharacter::ABaseCharacter()
@@ -53,6 +54,15 @@ int32 ABaseCharacter::PlayAttackMontage()
 int32 ABaseCharacter::PlayDeathMontage()
 {
 	return PlayRandomMontage(DeathMontage, DeathMontageSections);
+}
+
+void ABaseCharacter::StopAttackMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh() -> GetAnimInstance() ;
+	if ( AnimInstance ) 
+	{
+		AnimInstance -> Montage_Stop( 0.25, AttackMontage ) ;
+	}
 }
 
 void ABaseCharacter::DisableCapsule()
@@ -176,6 +186,29 @@ void ABaseCharacter::AttackEnd()
 bool ABaseCharacter::CanAttack() 
 {
 	return false;
+}
+
+FVector ABaseCharacter::GetTranslationWarpTarget()
+{
+	if( CombatTarget == nullptr )
+		return FVector() ;
+
+	const FVector CombatTargetLocation = CombatTarget -> GetActorLocation( ) ;
+	const FVector Location = GetActorLocation() ; // Enemy's Location
+	FVector TargetDistance = ( Location - CombatTargetLocation ) . GetSafeNormal() ; // Normalize the vector also as we have to scale by our warp value.
+
+	TargetDistance *= WarpTargetDistance ;
+	return CombatTargetLocation + TargetDistance ;
+
+}
+
+FVector ABaseCharacter::GetRotationWarpTarget()
+{
+	if ( CombatTarget ) 
+	{
+		return CombatTarget -> GetActorLocation() ;
+	}
+	return FVector();
 }
 
 bool ABaseCharacter::IsAttributeAlive()

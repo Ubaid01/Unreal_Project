@@ -86,9 +86,6 @@ private:
 	UPROPERTY(EditAnywhere);
 	TSubclassOf<class AWeapon> WeaponClass;
 
-	UPROPERTY() // To make sure its initialize to nullptr not garbage.
-	AActor* CombatTarget;
-
 	UPROPERTY(EditAnywhere)
 	double CombatRadius = 1500.0f;
 
