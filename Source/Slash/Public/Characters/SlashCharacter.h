@@ -20,6 +20,7 @@ class SLASH_API ASlashCharacter : public ABaseCharacter
 public:
 	ASlashCharacter();
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 	virtual void GetHit_Implementation(const FVector& ImpactPoint , AActor* Attacker ) override;
 
 	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item ; }
