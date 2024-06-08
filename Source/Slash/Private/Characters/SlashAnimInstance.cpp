@@ -27,5 +27,7 @@ void USlashAnimInstance :: NativeUpdateAnimation(float DeltaTime)
 		Velocity = SlashCharacter -> GetVelocity();
 		IsFalling = SlashCharacterMovement -> IsFalling();
 		CharacterState = SlashCharacter -> GetCharacterState();
+		ActionState = SlashCharacter -> GetActionState() ;
+		DeathPose = SlashCharacter -> GetDeathPose() ;
 	}
 }

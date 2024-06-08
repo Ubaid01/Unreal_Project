@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/HitInterface.h"
+#include "Characters/CharacterTypes.h"
 #include "BaseCharacter.generated.h"
 
 class UAnimMontage;
@@ -19,6 +20,7 @@ class SLASH_API ABaseCharacter : public ACharacter , public IHitInterface
 public:
 	ABaseCharacter();
 	virtual void Tick(float DeltaTime) override;
+	FORCEINLINE TEnumAsByte<EDeathPose> GetDeathPose() const { return DeathPose; }
 
 protected:
 	virtual void BeginPlay() override;
@@ -52,6 +54,7 @@ protected:
 	UFUNCTION( BlueprintCallable )
 	FVector GetRotationWarpTarget();
 	virtual bool IsAttributeAlive();
+	void DisbaleMeshCollision() ;
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon") // UPROPERTY so it particicaptes in garbage collection
 	AWeapon* EquippedWeapon;
@@ -62,6 +65,9 @@ protected:
 
 	UPROPERTY( EditAnywhere , Category = "Combat" )
 	double WarpTargetDistance = 75.0f ;
+
+	UPROPERTY(BlueprintReadOnly)
+	TEnumAsByte<EDeathPose> DeathPose;
 
 private:
 	virtual void PlayMontageSection(UAnimMontage* Montage, const FName& SectionName);

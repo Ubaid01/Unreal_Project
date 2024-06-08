@@ -105,7 +105,7 @@ void AEnemy::GetHit_Implementation(const FVector& ImpactPoint, AActor* Attacker 
 void AEnemy::Die()
 {
 	EnemyState = EEnemyState::EES_Dead;
-	PlayDeathMontage() ;
+	Super :: Die() ; 
 	ClearAttackTimer() ;
 	HideHealthBar();
 	DisableCapsule();
@@ -116,7 +116,8 @@ void AEnemy::Die()
 
 void AEnemy::Attack()
 {
-	Super :: Attack() ;
+	Super :: Attack() ; // Now 1st call super version and after that check before engaging
+	if ( CombatTarget == nullptr ) return ;
 	EnemyState = EEnemyState::EES_Engaged ; 
 	PlayAttackMontage() ;
 }
@@ -143,18 +144,6 @@ void AEnemy::HandleDamage(float DamageAmount)
 	}
 }
 
-int32 AEnemy::PlayDeathMontage()
-{
-	const int32 Selection = Super :: PlayDeathMontage() ; // Returned int32 as we had to setup death-pose depending on death-montage also.
-	TEnumAsByte<EDeathPose> Pose( Selection ) ; // This Byte Wrapper will set the value of template to parameter ; here Pose to Selection .
-
-	if( Pose < EDeathPose :: EDP_MAX )
-		DeathPose = Pose ;
-
-	return Selection ;
-
-}
-
 void AEnemy::ShowHealthBar()
 {
 	if (HealthBarWidget)
@@ -174,7 +163,7 @@ void AEnemy::HideHealthBar()
 void AEnemy::PawnSeen( APawn* SeenPawn )
 {
 	// Check Not Chasing To avoid delegate call multiple times.
-	const bool bShouldChaseTarget = ( EnemyState != EEnemyState::EES_Dead ) && ( EnemyState != EEnemyState :: EES_Chasing ) && ( EnemyState < EEnemyState::EES_Attacking ) && (SeenPawn -> ActorHasTag(FName("EngageableTarget") ) );
+	const bool bShouldChaseTarget = ( EnemyState != EEnemyState::EES_Dead ) && ( EnemyState != EEnemyState :: EES_Chasing ) && ( EnemyState < EEnemyState::EES_Attacking ) && (SeenPawn -> ActorHasTag(FName("EngageableTarget") ) && ( ! SeenPawn -> ActorHasTag(FName("Dead") ) ) ) ;
 
 	if ( bShouldChaseTarget ) 
 	{

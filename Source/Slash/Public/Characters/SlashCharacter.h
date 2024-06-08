@@ -11,6 +11,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class AItem;
 class UAnimMontage;
+class USlashOverlay ;
 
 UCLASS()
 class SLASH_API ASlashCharacter : public ABaseCharacter
@@ -20,12 +21,14 @@ class SLASH_API ASlashCharacter : public ABaseCharacter
 public:
 	ASlashCharacter();
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void Jump() override ;
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 	virtual void GetHit_Implementation(const FVector& ImpactPoint , AActor* Attacker ) override;
 
 	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item ; }
 	FORCEINLINE AItem* GetOverlappingItem() const { return OverlappingItem; }
 	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState;  }
+	FORCEINLINE EActionState GetActionState() const { return ActionState; }
 
 protected:
 	virtual void BeginPlay() override;
@@ -57,9 +60,12 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void FinsihEquipping( ) ;
 	void PlayEquipMontage(const FName& SectionName ) ;
+	virtual void Die() override ;
 
 private:
-
+	bool IsUnoccupied();
+	void InitializeSlashOverlay();
+	void SetHUDHealth();
 	/* Character Components */
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* CameraBoom;
@@ -72,6 +78,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Montages")
 	UAnimMontage* EquipMontage;
+
+	UPROPERTY()
+	USlashOverlay* SlashOverlay ;
 
 	ECharacterState CharacterState = ECharacterState :: ECS_Unequipped;
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))

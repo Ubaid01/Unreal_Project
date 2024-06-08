@@ -44,6 +44,10 @@ void ABaseCharacter::Tick(float DeltaTime)
 
 void ABaseCharacter::Attack()
 {
+	if ( CombatTarget && CombatTarget -> ActorHasTag( FName("Dead") ) )
+	{
+		CombatTarget = nullptr ;
+	}
 }
 
 int32 ABaseCharacter::PlayAttackMontage()
@@ -53,7 +57,13 @@ int32 ABaseCharacter::PlayAttackMontage()
 
 int32 ABaseCharacter::PlayDeathMontage()
 {
-	return PlayRandomMontage(DeathMontage, DeathMontageSections);
+	const int32 Selection = PlayRandomMontage( DeathMontage , DeathMontageSections ); // Returned int32 as we had to setup death-pose depending on death-montage also.
+	TEnumAsByte<EDeathPose> Pose(Selection); // This Byte Wrapper will set the value of template to parameter ; here Pose to Selection .
+
+	if (Pose < EDeathPose :: EDP_MAX)
+		DeathPose = Pose;
+
+	return Selection ;
 }
 
 void ABaseCharacter::StopAttackMontage()
@@ -81,6 +91,8 @@ int32 ABaseCharacter::PlayRandomMontage(UAnimMontage* Montage, const TArray<FNam
 
 void ABaseCharacter::Die()
 {
+	Tags.Add( FName("Dead") ) ;
+	PlayDeathMontage();
 }
 
 void ABaseCharacter::PlayMontageSection(UAnimMontage* Montage, const FName& SectionName)
@@ -214,6 +226,11 @@ FVector ABaseCharacter::GetRotationWarpTarget()
 bool ABaseCharacter::IsAttributeAlive()
 {
 	return Attributes && Attributes -> IsAlive() ;
+}
+
+void ABaseCharacter::DisbaleMeshCollision()
+{
+	GetMesh() -> SetCollisionEnabled(ECollisionEnabled :: NoCollision); 
 }
 
 void ABaseCharacter::SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled)
