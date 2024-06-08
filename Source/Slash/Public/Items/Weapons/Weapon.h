@@ -18,11 +18,11 @@ public:
 	AWeapon();
 	void Equip( USceneComponent* InParent, FName InSocketName , AActor* NewOwner , APawn* NewInsitigator );
 	void AttachMeshToSocket(USceneComponent* InParent, const FName& InSockentName);
+	void DropWeapon( ) ;
 	FORCEINLINE UBoxComponent* GetWeaponBox() const { return WeaponBox;  }
 	TArray<AActor*> IgnoreActors;
 
 protected:
-
 	virtual void BeginPlay() override;
 	// UFUNCTION() Macro is also inherited so no need to again write
 
@@ -34,6 +34,7 @@ protected:
 	void DeactivateEmbers();
 	void DisableSphereCollision();
 	void PlayEquipSound();
+	void PlayWeaponDropSound( ) ;
 	void ExecuteGetHit(FHitResult& BoxHit);
 
 private:
@@ -49,6 +50,8 @@ private:
 	UPROPERTY( EditAnywhere , Category = "Weapon Properties" )
 	USoundBase* EquipSound ;
 
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	USoundBase* DropSound;
 	UPROPERTY( VisibleAnywhere , Category = "Weapon Properties" )
 	UBoxComponent* WeaponBox;
 

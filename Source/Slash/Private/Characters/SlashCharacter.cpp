@@ -129,6 +129,11 @@ void ASlashCharacter::EquipAction()
 	AWeapon* OverlappingWeapon = Cast<AWeapon>( GetOverlappingItem() );
 	if (OverlappingWeapon) 
 	{
+		if ( EquippedWeapon )
+		{
+			EquippedWeapon -> DropWeapon( ) ;
+			CharacterState = ECharacterState::ECS_Unequipped ;
+		}
 		EquipWeapon( OverlappingWeapon ) ;
 	}
 	else 

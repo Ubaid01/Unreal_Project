@@ -25,7 +25,6 @@ AWeapon:: AWeapon()
 
 }
 
-
 void AWeapon::BeginPlay()
 {
 	Super :: BeginPlay();
@@ -71,11 +70,32 @@ void AWeapon::PlayEquipSound()
 	}
 }
 
+void AWeapon::PlayWeaponDropSound( )
+{
+	if ( DropSound )
+	{
+		UGameplayStatics :: PlaySoundAtLocation(this, DropSound, GetActorLocation() );
+	}
+}
+
+
 void AWeapon :: AttachMeshToSocket(USceneComponent* InParent, const FName& InSocketName) 
 {
 	FAttachmentTransformRules TransformRules(EAttachmentRule :: SnapToTarget, EAttachmentRule :: SnapToTarget, EAttachmentRule :: SnapToTarget, true);
 
 	ItemMesh -> AttachToComponent(InParent, TransformRules, InSocketName);
+}
+
+void AWeapon::DropWeapon( )
+{
+	DetachFromActor( FDetachmentTransformRules::KeepWorldTransform ) ;
+	AddActorWorldOffset( FVector( 60.0f , 60.0f , 5.0f ) ) ;
+	SetActorRotation( FRotator::ZeroRotator ) ;
+	PlayWeaponDropSound( ) ;
+	ItemState = EItemState::EIS_Hovering ;
+
+	Sphere -> SetCollisionEnabled( ECollisionEnabled::QueryOnly ) ;
+	EmbersEffect -> Activate() ;
 }
 
 void AWeapon::BoxTrace(FHitResult& BoxHit)
