@@ -16,6 +16,7 @@ class SLASH_API AWeapon : public AItem
 	
 public:
 	AWeapon();
+	virtual void Tick(float DeltaTime) override;
 	void Equip( USceneComponent* InParent, FName InSocketName , AActor* NewOwner , APawn* NewInsitigator );
 	void AttachMeshToSocket(USceneComponent* InParent, const FName& InSockentName);
 	void DropWeapon( ) ;
@@ -34,7 +35,6 @@ protected:
 	void DeactivateEmbers();
 	void DisableSphereCollision();
 	void PlayEquipSound();
-	void PlayWeaponDropSound( ) ;
 	void ExecuteGetHit(FHitResult& BoxHit);
 
 private:
@@ -49,9 +49,6 @@ private:
 
 	UPROPERTY( EditAnywhere , Category = "Weapon Properties" )
 	USoundBase* EquipSound ;
-
-	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
-	USoundBase* DropSound;
 	UPROPERTY( VisibleAnywhere , Category = "Weapon Properties" )
 	UBoxComponent* WeaponBox;
 

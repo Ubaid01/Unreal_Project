@@ -25,6 +25,15 @@ AWeapon:: AWeapon()
 
 }
 
+void AWeapon::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime) ;
+	if ( ItemState == EItemState::EIS_Hovering )
+	{
+		AddActorWorldRotation(FRotator(0.0f, 360 * FMath :: Sin(0.0075 * Time_Constant), 0.0f) ) ;
+	}
+}
+
 void AWeapon::BeginPlay()
 {
 	Super :: BeginPlay();
@@ -48,9 +57,9 @@ void AWeapon::Equip( USceneComponent* InParent, FName InSocketName, AActor* NewO
 
 void AWeapon::DeactivateEmbers()
 {
-	if (EmbersEffect)
+	if (ItemEffect)
 	{
-		EmbersEffect -> Deactivate();
+		ItemEffect -> Deactivate();
 	}
 }
 
@@ -70,15 +79,6 @@ void AWeapon::PlayEquipSound()
 	}
 }
 
-void AWeapon::PlayWeaponDropSound( )
-{
-	if ( DropSound )
-	{
-		UGameplayStatics :: PlaySoundAtLocation(this, DropSound, GetActorLocation() );
-	}
-}
-
-
 void AWeapon :: AttachMeshToSocket(USceneComponent* InParent, const FName& InSocketName) 
 {
 	FAttachmentTransformRules TransformRules(EAttachmentRule :: SnapToTarget, EAttachmentRule :: SnapToTarget, EAttachmentRule :: SnapToTarget, true);
@@ -89,13 +89,13 @@ void AWeapon :: AttachMeshToSocket(USceneComponent* InParent, const FName& InSoc
 void AWeapon::DropWeapon( )
 {
 	DetachFromActor( FDetachmentTransformRules::KeepWorldTransform ) ;
-	AddActorWorldOffset( FVector( 60.0f , 60.0f , 5.0f ) ) ;
+	AddActorWorldOffset( FVector( 60.0f , 60.0f , 0.0f ) ) ;
 	SetActorRotation( FRotator::ZeroRotator ) ;
-	PlayWeaponDropSound( ) ;
+	PlayEquipSound() ;
 	ItemState = EItemState::EIS_Hovering ;
 
 	Sphere -> SetCollisionEnabled( ECollisionEnabled::QueryOnly ) ;
-	EmbersEffect -> Activate() ;
+	ItemEffect -> Activate() ;
 }
 
 void AWeapon::BoxTrace(FHitResult& BoxHit)

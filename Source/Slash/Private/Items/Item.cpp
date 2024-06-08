@@ -19,8 +19,8 @@ AItem::AItem()
 	Sphere = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere"));
 	Sphere -> SetupAttachment( GetRootComponent() ) ;
 
-	EmbersEffect = CreateDefaultSubobject<UNiagaraComponent>( TEXT("Embers") ) ;
-	EmbersEffect -> SetupAttachment(GetRootComponent());
+	ItemEffect = CreateDefaultSubobject<UNiagaraComponent>( TEXT("Embers") ) ;
+	ItemEffect -> SetupAttachment(GetRootComponent());
 
 	ItemMesh -> SetCollisionResponseToAllChannels( ECollisionResponse :: ECR_Ignore ) ;
 	ItemMesh -> SetCollisionEnabled(ECollisionEnabled :: NoCollision); // Since each time we have to set collision disabled for each mesh ; so setting through C++ ; as we will never want out enemy or character to keep colliding with it.
@@ -74,7 +74,6 @@ void AItem::Tick(float DeltaTime)
 	if (ItemState == EItemState :: EIS_Hovering) 
 	{
 		AddActorWorldOffset( FVector( 0.0f, 0.0f , TransformedSine( ) ) ) ;
-		AddActorWorldRotation( FRotator( 0.0f , 360 * FMath :: Sin( 0.0075 * Time_Constant ), 0.0f) );
 	}
 
 }

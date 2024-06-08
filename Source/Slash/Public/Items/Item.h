@@ -55,7 +55,7 @@ protected:
 	USphereComponent* Sphere;
 
 	UPROPERTY( EditAnywhere )
-	UNiagaraComponent* EmbersEffect;
+	UNiagaraComponent* ItemEffect;
 
 private:
 	UPROPERTY( VisibleInstanceOnly , BlueprintReadOnly , meta = ( AllowPrivateAccess = "true" ) )
