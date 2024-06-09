@@ -66,6 +66,12 @@ int32 ABaseCharacter::PlayDeathMontage()
 	return Selection ;
 }
 
+void ABaseCharacter::PlayDodgeMontage()
+{
+// If only using single Default Section so FName("Default")
+	PlayRandomMontage( DodgeMontage, DodgeMontageSections ) ;
+}
+
 void ABaseCharacter::StopAttackMontage()
 {
 	UAnimInstance* AnimInstance = GetMesh() -> GetAnimInstance() ;
@@ -192,6 +198,10 @@ void ABaseCharacter::HandleDamage(float DamageAmount )
 }
 
 void ABaseCharacter::AttackEnd()
+{
+}
+
+void ABaseCharacter::DodgeEnd()
 {
 }
 

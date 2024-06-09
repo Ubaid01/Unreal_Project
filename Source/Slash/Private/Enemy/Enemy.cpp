@@ -11,6 +11,7 @@
 #include "Components/AttributeComponent.h"
 #include "Perception/PawnSensingComponent.h"
 #include "Items/Weapons/Weapon.h"
+#include "Items/Soul.h"
 
 
 AEnemy::AEnemy()
@@ -99,7 +100,6 @@ void AEnemy::GetHit_Implementation(const FVector& ImpactPoint, AActor* Attacker 
 	ClearAttackTimer() ;
 	SetWeaponCollisionEnabled(ECollisionEnabled :: NoCollision);
 	StopAttackMontage() ;
-
 }
 
 void AEnemy::Die()
@@ -112,6 +112,22 @@ void AEnemy::Die()
 	SetLifeSpan( DeathLifeSpan ) ;
 	GetCharacterMovement() -> bOrientRotationToMovement = false ; // Set Rotation to false as after dying enemy was rotating its body to adjust themselves.
 	SetWeaponCollisionEnabled( ECollisionEnabled :: NoCollision ) ;
+	SpawnSoul();
+}
+
+void AEnemy::SpawnSoul()
+{
+	UWorld* World = GetWorld();
+
+	if ( World && SoulClass && Attributes )
+	{
+		const FVector SpawnLocation = GetActorLocation() + FVector(0.0f, 0.0f, 30.0f);
+		ASoul* SpawnedSoul = World -> SpawnActor<ASoul>(SoulClass, SpawnLocation, GetActorRotation() ) ;
+		if ( SpawnedSoul )
+		{
+			SpawnedSoul -> SetSouls( Attributes -> GetSouls() ) ;
+		}
+	}
 }
 
 void AEnemy::Attack()

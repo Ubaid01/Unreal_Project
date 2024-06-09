@@ -11,10 +11,12 @@
 #include "Animation/AnimMontage.h"
 #include "HUD/SlashHUD.h"
 #include "HUD/SlashOverlay.h"
+#include "Items/Soul.h"
+#include "Items/Treasure.h"
 
 ASlashCharacter::ASlashCharacter()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true ;
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
@@ -36,6 +38,33 @@ ASlashCharacter::ASlashCharacter()
 
 }
 
+void ASlashCharacter::Tick(float DeltaTime)
+{
+	if ( Attributes && ( Attributes -> GetStaminaPercent() < 1.0f && Attributes -> GetStaminaPercent() >= 0.0f ) )
+	{
+		Attributes -> RegenerateStamina(DeltaTime) ;
+		SlashOverlay -> SetStaminaBarPercent( Attributes -> GetStaminaPercent() ) ;
+	}
+}
+
+void ASlashCharacter::AddSouls(ASoul* Soul)
+{
+	if (Attributes)
+	{
+		Attributes -> AddToSouls( Soul -> GetSouls() ) ;
+		SlashOverlay -> SetSouls( Attributes -> GetSouls() ) ;
+	}
+}
+
+void ASlashCharacter::AddGold(ATreasure* Treasure)
+{
+	if ( Attributes && SlashOverlay )
+	{
+		Attributes -> AddToGold( Treasure -> GetGold() );
+		SlashOverlay -> SetGold( Attributes -> GetGold() );
+	}
+}
+
 void ASlashCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -55,6 +84,7 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent -> BindAction(FName("Jump"), IE_Pressed , this, &ASlashCharacter :: Jump);
 	PlayerInputComponent -> BindAction(FName("Equip"), IE_Pressed, this, &ASlashCharacter :: EquipAction );
 	PlayerInputComponent -> BindAction(FName("Attack"), IE_Pressed, this, &ASlashCharacter :: Attack);
+	PlayerInputComponent -> BindAction(FName("Dodge"), IE_Pressed, this, &ASlashCharacter :: Dodge );
 
 }
 
@@ -126,7 +156,7 @@ void ASlashCharacter::LookUp(float Value)
 
 void ASlashCharacter::EquipAction()
 {
-	AWeapon* OverlappingWeapon = Cast<AWeapon>( GetOverlappingItem() );
+	AWeapon* OverlappingWeapon = Cast<AWeapon>( GetOverlappingItem() ) ;
 	if (OverlappingWeapon) 
 	{
 		if ( EquippedWeapon )
@@ -135,7 +165,7 @@ void ASlashCharacter::EquipAction()
 			CharacterState = ECharacterState::ECS_Unequipped ;
 		}
 		EquipWeapon( OverlappingWeapon ) ;
-	}
+	} 
 	else 
 	{
 		// So that it also no runs in between the attack animation
@@ -168,8 +198,33 @@ void ASlashCharacter::Attack()
 	}
 }
 
+void ASlashCharacter::Dodge()
+{
+	const bool CanNotDodge = ( ( ActionState == EActionState::EAS_HitReaction) || (ActionState == EActionState::EAS_Attacking) || ( ! HasEnoughStamina( ) ) ) ;
+	if ( CanNotDodge ) return ; 
+
+	ActionState = EActionState :: EAS_Dodging ;
+	PlayDodgeMontage( ) ;
+	if ( SlashOverlay ) // As checked Attributes in HasEnoughStamina so no need to do again.
+	{
+		Attributes -> UseStamina( Attributes -> GetDodgeCost() ) ;
+		SlashOverlay -> SetStaminaBarPercent( Attributes -> GetStaminaPercent() ) ;
+	}
+}
+
+bool ASlashCharacter::HasEnoughStamina()
+{
+	return Attributes && ( Attributes -> GetStamina() > Attributes -> GetDodgeCost() ) ;
+}
+
 void ASlashCharacter::AttackEnd()
 {
+	ActionState = EActionState::EAS_Unoccupied ;
+}
+
+void ASlashCharacter::DodgeEnd()
+{
+	Super::DodgeEnd() ;
 	ActionState = EActionState::EAS_Unoccupied ;
 }
 

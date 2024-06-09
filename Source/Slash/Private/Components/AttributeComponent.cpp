@@ -5,10 +5,9 @@
 
 UAttributeComponent::UAttributeComponent()
 {
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false ;
 
 }
-
 
 void UAttributeComponent::BeginPlay()
 {
@@ -23,9 +22,19 @@ void UAttributeComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 }
 
+void UAttributeComponent::RegenerateStamina(float DeltaTime)
+{
+	Stamina = FMath :: Clamp(Stamina + (StaminaRegenerate * DeltaTime), 0.0f, MaxStamina);
+}
+
 void UAttributeComponent::ReceiveDamage(float Damage)
 {
 	Health = FMath :: Clamp( Health - Damage, 0.0f, MaxHealth ) ; // Clamp the value so that it never goes below 0.
+}
+
+void UAttributeComponent::UseStamina( float StaminaCost )
+{
+	Stamina = FMath :: Clamp( Stamina - StaminaCost , 0.0f, MaxStamina ) ;
 }
 
 float UAttributeComponent::GetHealthPercent()
@@ -33,8 +42,23 @@ float UAttributeComponent::GetHealthPercent()
 	return Health / MaxHealth ;
 }
 
+float UAttributeComponent::GetStaminaPercent()
+{
+	return Stamina / MaxStamina ;
+}
+
 bool UAttributeComponent::IsAlive()
 {
 	return Health > 0.0f ;
+}
+
+void UAttributeComponent::AddToGold(int32 AmonutOfGold)
+{
+	Gold += AmonutOfGold;
+}
+
+void UAttributeComponent::AddToSouls(int32 NumberOfSouls)
+{
+	Souls += NumberOfSouls ;
 }
 

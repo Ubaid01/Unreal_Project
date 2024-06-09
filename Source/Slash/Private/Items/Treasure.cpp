@@ -3,18 +3,15 @@
 
 #include "Items/Treasure.h"
 #include "Characters/SlashCharacter.h"
-#include "Kismet/GameplayStatics.h"
 
 void ATreasure ::  OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	// No need to call Super as we are not attaching the Weapon when overlapping coin also.
-	ASlashCharacter* SlashCharacter = Cast<ASlashCharacter>(OtherActor);
-	if (SlashCharacter)
+	IPickupInterface* PickupInterface = Cast<IPickupInterface>( OtherActor ) ;
+	if ( PickupInterface )
 	{
-		if (PickupSound) 
-		{
-			UGameplayStatics :: PlaySoundAtLocation( this, PickupSound, GetActorLocation( ) ) ;
-		}
+		PickupInterface -> AddGold( this ) ;
+		SpawnPickupSound() ; // Since now we have similiar name USoundBase in AItem so removed from here.
 
 		Destroy(); // To destroy the item at the overlap.
 	}

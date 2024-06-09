@@ -89,7 +89,7 @@ void AWeapon :: AttachMeshToSocket(USceneComponent* InParent, const FName& InSoc
 void AWeapon::DropWeapon( )
 {
 	DetachFromActor( FDetachmentTransformRules::KeepWorldTransform ) ;
-	AddActorWorldOffset( FVector( 60.0f , 60.0f , 0.0f ) ) ;
+	AddActorWorldOffset( FVector( 100.0f , 100.0f , -2.0f ) ) ;
 	SetActorRotation( FRotator::ZeroRotator ) ;
 	PlayEquipSound() ;
 	ItemState = EItemState::EIS_Hovering ;

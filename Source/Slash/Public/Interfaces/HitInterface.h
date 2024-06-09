@@ -22,6 +22,6 @@ class SLASH_API IHitInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	UFUNCTION( BlueprintNativeEvent ) 
+	UFUNCTION( BlueprintNativeEvent ) // No need to mark now as pure virtual as Unreal will see this macro and generate the virtual function
 	void GetHit( const FVector& ImpactPoint , AActor* Attacker ) ; // Reference used to avoid making a copy as we don't want to change it here.
 };
