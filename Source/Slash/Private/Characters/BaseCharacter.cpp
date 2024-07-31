@@ -69,7 +69,7 @@ int32 ABaseCharacter::PlayDeathMontage()
 void ABaseCharacter::PlayDodgeMontage()
 {
 // If only using single Default Section so FName("Default")
-	PlayRandomMontage( DodgeMontage, DodgeMontageSections ) ;
+	PlayMontageSection( DodgeMontage, FName("Default") );
 }
 
 void ABaseCharacter::StopAttackMontage()

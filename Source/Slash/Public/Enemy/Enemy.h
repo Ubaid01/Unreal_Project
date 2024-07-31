@@ -93,7 +93,6 @@ private:
 	/*
 	Naviagation
 	*/
-
 	UPROPERTY()
 	class AAIController* EnemyController;
 
@@ -127,6 +126,11 @@ private:
 	UPROPERTY(EditAnywhere)
 	float DeathLifeSpan = 10.0f;
 
+	FTimerHandle RestablingTimer;
+	void IfHit_Restablize();
+	UPROPERTY( EditAnywhere , Category = "Combat" )
+	float RestablingDelayMin = 2.0f ;
+	float RestablingDelayMax = 5.0f ;
 	UPROPERTY( EditAnywhere , Category = "Combat" )
 	TSubclassOf<ASoul> SoulClass ;
 

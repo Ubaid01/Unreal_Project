@@ -91,9 +91,20 @@ void AEnemy::Destroyed()
 	}
 }
 
+void AEnemy::IfHit_Restablize()
+{
+	if ( EnemyState == EEnemyState::EES_Attacking )
+		EnemyState = EEnemyState::EES_Chasing;
+	
+	GetWorld() -> GetTimerManager().ClearTimer(RestablingTimer);
+}
+
 void AEnemy::GetHit_Implementation(const FVector& ImpactPoint, AActor* Attacker )
 {
 	Super :: GetHit_Implementation( ImpactPoint , Attacker ) ;
+	const float RestablingDelay = FMath::RandRange(RestablingDelayMin, RestablingDelayMax) ;
+	GetWorld() -> GetTimerManager().SetTimer( RestablingTimer , this, &AEnemy::IfHit_Restablize, RestablingDelay ) ; 	// Start a delay timer for enemy to restable itself if hit while attacking.
+
 	if( ! IsDead() ) 
 		ShowHealthBar() ;
 	ClearPatrolTimer() ;
@@ -121,7 +132,7 @@ void AEnemy::SpawnSoul()
 
 	if ( World && SoulClass && Attributes )
 	{
-		const FVector SpawnLocation = GetActorLocation() + FVector(0.0f, 0.0f, 30.0f);
+		const FVector SpawnLocation = GetActorLocation() + FVector(30.0f, 30.0f, 30.0f);
 		ASoul* SpawnedSoul = World -> SpawnActor<ASoul>(SoulClass, SpawnLocation, GetActorRotation() ) ;
 		if ( SpawnedSoul )
 		{
@@ -154,7 +165,7 @@ void AEnemy::AttackEnd()
 void AEnemy::HandleDamage(float DamageAmount)
 {
 	Super :: HandleDamage(DamageAmount) ;
-	if ( HealthBarWidget ) 
+	if ( Attributes && HealthBarWidget ) 
 	{
 		HealthBarWidget -> SetHealthPercent( Attributes -> GetHealthPercent() ) ;
 	}

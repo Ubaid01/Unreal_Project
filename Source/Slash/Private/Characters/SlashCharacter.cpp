@@ -40,7 +40,7 @@ ASlashCharacter::ASlashCharacter()
 
 void ASlashCharacter::Tick(float DeltaTime)
 {
-	if ( Attributes && ( Attributes -> GetStaminaPercent() < 1.0f && Attributes -> GetStaminaPercent() >= 0.0f ) )
+	if ( Attributes && SlashOverlay && ( ActionState != EActionState::EAS_Dead ) )
 	{
 		Attributes -> RegenerateStamina(DeltaTime) ;
 		SlashOverlay -> SetStaminaBarPercent( Attributes -> GetStaminaPercent() ) ;
@@ -106,7 +106,7 @@ void ASlashCharacter::GetHit_Implementation( const FVector& ImpactPoint, AActor*
 	Super :: GetHit_Implementation( ImpactPoint , Attacker ) ;
 	SetWeaponCollisionEnabled( ECollisionEnabled :: NoCollision ) ;
 
-	if ( Attributes && Attributes -> GetHealthPercent() > 0 ) // Since after each thing our character was getting hit react.
+	if ( Attributes && Attributes -> GetHealthPercent() > 0.0f ) // Since after each thing our character was getting hit react.
 		ActionState = EActionState::EAS_HitReaction ;
 }
 
@@ -200,15 +200,19 @@ void ASlashCharacter::Attack()
 
 void ASlashCharacter::Dodge()
 {
-	const bool CanNotDodge = ( ( ActionState == EActionState::EAS_HitReaction) || (ActionState == EActionState::EAS_Attacking) || ( ! HasEnoughStamina( ) ) ) ;
-	if ( CanNotDodge ) return ; 
+	//const bool CanNotDodge = ( ( ActionState == EActionState::EAS_HitReaction ) || ( ActionState == EActionState::EAS_Attacking ) || ( ! HasEnoughStamina( ) ) || ( ActionState == EActionState::EAS_Dodging ) ) ; // And also character first should complete the previous dodge
+	//if ( CanNotDodge ) return ; 
+	const bool CanDodge = ( ActionState == EActionState::EAS_Unoccupied || ActionState == EActionState::EAS_EquippingWeapon ) && ( ActionState != EActionState::EAS_Dodging ) && HasEnoughStamina() ; // This also allows the character to dodge while running.
 
-	ActionState = EActionState :: EAS_Dodging ;
-	PlayDodgeMontage( ) ;
-	if ( SlashOverlay ) // As checked Attributes in HasEnoughStamina so no need to do again.
+	if ( CanDodge )
 	{
-		Attributes -> UseStamina( Attributes -> GetDodgeCost() ) ;
-		SlashOverlay -> SetStaminaBarPercent( Attributes -> GetStaminaPercent() ) ;
+		ActionState = EActionState :: EAS_Dodging ;
+		PlayDodgeMontage( ) ;
+		if ( SlashOverlay ) // As checked Attributes in HasEnoughStamina so no need to do again.
+		{
+			Attributes -> UseStamina( Attributes -> GetDodgeCost() ) ;
+			SlashOverlay -> SetStaminaBarPercent( Attributes -> GetStaminaPercent() ) ;
+		}
 	}
 }
 

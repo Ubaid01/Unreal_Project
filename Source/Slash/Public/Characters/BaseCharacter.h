@@ -102,7 +102,4 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	TArray<FName> DeathMontageSections;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Combat")
-	TArray<FName> DodgeMontageSections;
-
 };
