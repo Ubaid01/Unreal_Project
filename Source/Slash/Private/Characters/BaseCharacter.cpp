@@ -95,7 +95,7 @@ int32 ABaseCharacter::PlayRandomMontage(UAnimMontage* Montage, const TArray<FNam
 	return Selection ;
 }
 
-void ABaseCharacter::Die()
+void ABaseCharacter::Die_Implementation()
 {
 	Tags.Add( FName("Dead") ) ;
 	PlayDeathMontage();
@@ -123,7 +123,8 @@ void ABaseCharacter::DirectionalHitReact(const FVector& ImpactPoint )
 
 	// If CrossProduct points -ve ; vector points downward ;
 	const FVector CrossProduct = FVector::CrossProduct(Forward, ToHit);
-	if (CrossProduct.Z < 0.0f) {
+	if (CrossProduct.Z < 0.0f) 
+	{
 		Theta *= -1;
 	}
 
@@ -132,33 +133,13 @@ void ABaseCharacter::DirectionalHitReact(const FVector& ImpactPoint )
 	{
 		Section = FName("FromFront");
 	}
-	else if (Theta >= -135.0f && Theta < -45.0f) {
-		const int32 Selection = FMath :: RandRange(0, 1);
-		switch (Selection)
-		{
-		case 0:
-			Section = FName("FromLeft");
-			break;
-		case 1:
-			Section = FName("FromLeft_1");
-			break;
-		default:
-			break;
-		}
+	else if (Theta >= -135.0f && Theta < -45.0f) 
+	{
+		Section = FName("FromLeft");
 	}
-	else if (Theta >= 45.0f && Theta < 135.0f) {
-		const int32 Selection = FMath :: RandRange(0, 1);
-		switch (Selection)
-		{
-		case 0:
-			Section = FName("FromRight");
-			break;
-		case 1:
-			Section = FName("FromRight_1");
-			break;
-		default:
-			break;
-		}
+	else if (Theta >= 45.0f && Theta < 135.0f) 
+	{
+		Section = FName("FromRight");
 	}
 	PlayHitReactMonatge(Section);
 }

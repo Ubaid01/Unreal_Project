@@ -34,7 +34,7 @@ protected:
 	/* <AActor> */
 
 	/* <ABaseCharacter> */
-	virtual void Die() override;
+	virtual void Die_Implementation() override;
 	void SpawnSoul();
 	virtual void Attack() override;
 	virtual bool CanAttack() override;
@@ -81,14 +81,16 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	UPawnSensingComponent* PawnSensing;
 
-	UPROPERTY(EditAnywhere);
+	UPROPERTY(EditAnywhere , Category = "Combat");
 	TSubclassOf<class AWeapon> WeaponClass;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere , Category = "Combat")
 	double CombatRadius = 1500.0f;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere , Category = "Combat")
 	double AttackRadius = 150.0f;
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	double AcceptanceRadius = 50.0f;
 
 	/*
 	Naviagation
@@ -130,6 +132,7 @@ private:
 	void IfHit_Restablize();
 	UPROPERTY( EditAnywhere , Category = "Combat" )
 	float RestablingDelayMin = 2.0f ;
+	UPROPERTY(EditAnywhere, Category = "Combat")
 	float RestablingDelayMax = 5.0f ;
 	UPROPERTY( EditAnywhere , Category = "Combat" )
 	TSubclassOf<ASoul> SoulClass ;

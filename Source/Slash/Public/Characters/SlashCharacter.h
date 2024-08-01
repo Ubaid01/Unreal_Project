@@ -68,7 +68,7 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void FinsihEquipping( ) ;
 	void PlayEquipMontage(const FName& SectionName ) ;
-	virtual void Die() override ;
+	virtual void Die_Implementation() override ;
 
 private:
 	bool IsUnoccupied();

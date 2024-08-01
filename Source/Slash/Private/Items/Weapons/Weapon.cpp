@@ -104,7 +104,8 @@ void AWeapon::BoxTrace(FHitResult& BoxHit)
 	const FVector End = BoxTraceEnd -> GetComponentLocation();
 
 	TArray <AActor*> ActorsToIgnore;
-	ActorsToIgnore.Add(this);
+	ActorsToIgnore.Add(this); // Ignoring "this" current weapon
+	ActorsToIgnore.Add( GetOwner() ); // Also ignore the owner.
 
 	for (AActor* Actor : IgnoreActors) // Add the ignore actors for each time the function is called.
 	{

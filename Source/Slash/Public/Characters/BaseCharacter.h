@@ -28,7 +28,8 @@ protected:
 
 	/* Combat */
 	virtual void Attack() ;
-	virtual void Die() ;
+	UFUNCTION( BlueprintNativeEvent )
+	void Die() ;
 	virtual bool CanAttack();
 	virtual void HandleDamage(float DamageAmount);
 	void DirectionalHitReact(const FVector& ImpactPoint);

@@ -111,12 +111,15 @@ void AEnemy::GetHit_Implementation(const FVector& ImpactPoint, AActor* Attacker 
 	ClearAttackTimer() ;
 	SetWeaponCollisionEnabled(ECollisionEnabled :: NoCollision);
 	StopAttackMontage() ;
+
+	//if ( IsInsideAttackRadius() && !IsDead() )
+	//	StartAttackTimer() ;
 }
 
-void AEnemy::Die()
+void AEnemy::Die_Implementation()
 {
 	EnemyState = EEnemyState::EES_Dead;
-	Super :: Die() ; 
+	Super :: Die_Implementation() ; // Now must call this Super else it will result in an Infinitie Loop. 
 	ClearAttackTimer() ;
 	HideHealthBar();
 	DisableCapsule();
@@ -132,11 +135,12 @@ void AEnemy::SpawnSoul()
 
 	if ( World && SoulClass && Attributes )
 	{
-		const FVector SpawnLocation = GetActorLocation() + FVector(30.0f, 30.0f, 30.0f);
+		const FVector SpawnLocation = GetActorLocation() + FVector(0.0f, 0.0f, 125.0f);
 		ASoul* SpawnedSoul = World -> SpawnActor<ASoul>(SoulClass, SpawnLocation, GetActorRotation() ) ;
 		if ( SpawnedSoul )
 		{
 			SpawnedSoul -> SetSouls( Attributes -> GetSouls() ) ;
+			SpawnedSoul -> SetOwner( this ) ;
 		}
 	}
 }
@@ -260,7 +264,7 @@ void AEnemy::MoveToTarget( AActor* Target )
 	if (EnemyController == nullptr || Target == nullptr) return ;
 	FAIMoveRequest MoveRequest; // struct
 	MoveRequest.SetGoalActor( Target );
-	MoveRequest.SetAcceptanceRadius( 50.0f ) ;
+	MoveRequest.SetAcceptanceRadius( AcceptanceRadius ) ;
 	EnemyController -> MoveTo( MoveRequest ); // NavMesh was optional
 }
 
@@ -268,8 +272,8 @@ bool AEnemy::InTargetRange(AActor* Target, double Radius)
 {
 	if ( Target == nullptr ) return false ;
 
-	const double DistanceToTarget = (Target -> GetActorLocation( ) - GetActorLocation( ) ) . Size( ) ; // Size() or Length() to get vector length.
-	return DistanceToTarget <= Radius ;
+	const double DistanceToTarget = (Target -> GetActorLocation( ) - GetActorLocation( ) ) . Size( ) ; // Size() or Length() to get vector length. 
+	return DistanceToTarget <= Radius ; // If true ; Enemy has reached within the target bound.
 }
 
 void AEnemy::SpawnDefaultWeapon()
@@ -279,7 +283,7 @@ void AEnemy::SpawnDefaultWeapon()
 	if (World && WeaponClass)
 	{
 		AWeapon* DefaultWeapon = World -> SpawnActor<AWeapon>(WeaponClass); // Since we are not providing location and rotation so we will need to specify ; we will have to attach it .
-		DefaultWeapon -> Equip(GetMesh(), FName("RightHandSocket"), this, this);
+		DefaultWeapon -> Equip(GetMesh(), FName("WeaponSocket"), this, this);
 		EquippedWeapon = DefaultWeapon;
 	}
 }

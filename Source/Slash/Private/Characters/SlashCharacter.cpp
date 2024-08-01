@@ -200,19 +200,15 @@ void ASlashCharacter::Attack()
 
 void ASlashCharacter::Dodge()
 {
-	//const bool CanNotDodge = ( ( ActionState == EActionState::EAS_HitReaction ) || ( ActionState == EActionState::EAS_Attacking ) || ( ! HasEnoughStamina( ) ) || ( ActionState == EActionState::EAS_Dodging ) ) ; // And also character first should complete the previous dodge
-	//if ( CanNotDodge ) return ; 
 	const bool CanDodge = ( ActionState == EActionState::EAS_Unoccupied || ActionState == EActionState::EAS_EquippingWeapon ) && ( ActionState != EActionState::EAS_Dodging ) && HasEnoughStamina() ; // This also allows the character to dodge while running.
+	if ( !CanDodge ) return ;
 
-	if ( CanDodge )
+	ActionState = EActionState :: EAS_Dodging ;
+	PlayDodgeMontage( ) ;
+	if ( SlashOverlay ) // As checked Attributes in HasEnoughStamina so no need to do again.
 	{
-		ActionState = EActionState :: EAS_Dodging ;
-		PlayDodgeMontage( ) ;
-		if ( SlashOverlay ) // As checked Attributes in HasEnoughStamina so no need to do again.
-		{
-			Attributes -> UseStamina( Attributes -> GetDodgeCost() ) ;
-			SlashOverlay -> SetStaminaBarPercent( Attributes -> GetStaminaPercent() ) ;
-		}
+		Attributes -> UseStamina( Attributes -> GetDodgeCost() ) ;
+		SlashOverlay -> SetStaminaBarPercent( Attributes -> GetStaminaPercent() ) ;
 	}
 }
 
@@ -302,10 +298,10 @@ void ASlashCharacter::PlayEquipMontage(const FName& SectionName)
 	}
 }
 
-void ASlashCharacter::Die()
+void ASlashCharacter::Die_Implementation()
 {
 	ActionState = EActionState::EAS_Dead ;
-	Super :: Die() ;
+	Super :: Die_Implementation() ;
 	DisbaleMeshCollision() ;
 }
 
