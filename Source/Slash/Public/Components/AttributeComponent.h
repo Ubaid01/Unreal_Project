@@ -27,6 +27,7 @@ public:
 	void AddToSouls( int32 NumberOfSouls ) ;
 	FORCEINLINE int32 GetGold() const { return Gold ; }
 	FORCEINLINE int32 GetSouls() const { return Souls; }
+	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
 	FORCEINLINE float GetStamina() const { return Stamina; }
 	FORCEINLINE float GetDodgeCost() const { return DodgeCost; }
 protected:

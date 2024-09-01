@@ -91,19 +91,19 @@ void AEnemy::Destroyed()
 	}
 }
 
-void AEnemy::IfHit_Restablize()
-{
-	if ( EnemyState == EEnemyState::EES_Attacking )
-		EnemyState = EEnemyState::EES_Chasing;
-	
-	GetWorld() -> GetTimerManager().ClearTimer(RestablingTimer);
-}
+//void AEnemy::IfHit_Restablize()
+//{
+//	if ( EnemyState == EEnemyState::EES_Attacking )
+//		EnemyState = EEnemyState::EES_Chasing;
+//	
+//	GetWorld() -> GetTimerManager().ClearTimer(RestablingTimer);
+//}
 
 void AEnemy::GetHit_Implementation(const FVector& ImpactPoint, AActor* Attacker )
 {
 	Super :: GetHit_Implementation( ImpactPoint , Attacker ) ;
-	const float RestablingDelay = FMath::RandRange(RestablingDelayMin, RestablingDelayMax) ;
-	GetWorld() -> GetTimerManager().SetTimer( RestablingTimer , this, &AEnemy::IfHit_Restablize, RestablingDelay ) ; 	// Start a delay timer for enemy to restable itself if hit while attacking.
+	//const float RestablingDelay = FMath::RandRange(RestablingDelayMin, RestablingDelayMax) ;
+	//GetWorld() -> GetTimerManager().SetTimer( RestablingTimer , this, &AEnemy::IfHit_Restablize, RestablingDelay ) ; 	// Start a delay timer for enemy to restable itself if hit while attacking.
 
 	if( ! IsDead() ) 
 		ShowHealthBar() ;
@@ -112,8 +112,8 @@ void AEnemy::GetHit_Implementation(const FVector& ImpactPoint, AActor* Attacker 
 	SetWeaponCollisionEnabled(ECollisionEnabled :: NoCollision);
 	StopAttackMontage() ;
 
-	//if ( IsInsideAttackRadius() && !IsDead() )
-	//	StartAttackTimer() ;
+	if ( IsInsideAttackRadius() && !IsDead() )
+		StartAttackTimer() ;
 }
 
 void AEnemy::Die_Implementation()
@@ -266,13 +266,31 @@ void AEnemy::MoveToTarget( AActor* Target )
 	MoveRequest.SetGoalActor( Target );
 	MoveRequest.SetAcceptanceRadius( AcceptanceRadius ) ;
 	EnemyController -> MoveTo( MoveRequest ); // NavMesh was optional
+	FNavPathSharedPtr NavPath;
+	EPathFollowingRequestResult::Type Result = EnemyController->MoveTo(MoveRequest, &NavPath);
+
+	if (Result != EPathFollowingRequestResult::RequestSuccessful)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("MoveTo request failed! Result: %d"), Result);
+	}
+	else
+	{
+		// Optional: Log path points for debugging
+		if (NavPath && NavPath->GetPathPoints().Num() > 0)
+		{
+			for (auto& Point : NavPath->GetPathPoints())
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Path Point: %s"), *Point.Location.ToString());
+			}
+		}
+	}
 }
 
 bool AEnemy::InTargetRange(AActor* Target, double Radius)
 {
 	if ( Target == nullptr ) return false ;
 
-	const double DistanceToTarget = (Target -> GetActorLocation( ) - GetActorLocation( ) ) . Size( ) ; // Size() or Length() to get vector length. 
+	const double DistanceToTarget = (Target -> GetActorLocation( ) - GetActorLocation( ) ) . Size( ) ; // Size() or Length() to get vector length.
 	return DistanceToTarget <= Radius ; // If true ; Enemy has reached within the target bound.
 }
 
@@ -306,7 +324,7 @@ void AEnemy::CheckCombatTarget()
 	}
 	else if ( CanAttack( ) )
 	{
-		ClearAttackTimer(); // As we don't want this to be called each frame even though in all conditions ; so avoid spamming by only checking in cases. AttackPreviousTimer.
+		//ClearAttackTimer(); // As we don't want this to be called each frame even though in all conditions ; so avoid spamming by only checking in cases. AttackPreviousTimer.
 		StartAttackTimer( ) ;
 	}
 }
@@ -322,6 +340,7 @@ void AEnemy :: ChaseTarget()
 {
 	EnemyState = EEnemyState:: EES_Chasing;
 	GetCharacterMovement() -> MaxWalkSpeed = ChasingSpeed;
+	UE_LOG(LogTemp, Warning, TEXT("Current Acceptance Radius: %f"), AcceptanceRadius);
 	MoveToTarget(CombatTarget);
 }
 
