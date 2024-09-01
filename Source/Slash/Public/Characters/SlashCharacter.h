@@ -6,6 +6,7 @@
 #include "CharacterTypes.h"
 #include "BaseCharacter.h"
 #include "Interfaces/PickupInterface.h"
+#include "InputActionValue.h"
 #include "SlashCharacter.generated.h"
 
 class USpringArmComponent;
@@ -15,6 +16,9 @@ class ASoul ;
 class ATreasure ;
 class UAnimMontage;
 class USlashOverlay ;
+class UInputMappingContext;
+class UInputAction;
+class APotion;
 
 UCLASS()
 class SLASH_API ASlashCharacter : public ABaseCharacter, public IPickupInterface
@@ -35,8 +39,30 @@ public:
 	FORCEINLINE EActionState GetActionState() const { return ActionState; }
 	virtual void AddSouls( ASoul* Soul ) override ;
 	virtual void AddGold( ATreasure* Treasure ) override ;
+	virtual void AddHealth( APotion* Potion ) override;
 protected:
 	virtual void BeginPlay() override;
+	/* Enhanced Input Actions */
+	UPROPERTY( EditAnywhere , Category="Input" )
+	UInputMappingContext* SlashContext;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* MovementAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* LookingAction;
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* JumpAction;
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* EquippingAction;
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* AttackAction;
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* DodgeAction;
+
+	void Move(const FInputActionValue& Value);
+	void Look(const FInputActionValue& Value);
+
 	/*  Callbacks for Input  */
 	void MoveForward(float Value);
 	void MoveSideways(float Value);
@@ -68,6 +94,7 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void FinsihEquipping( ) ;
 	void PlayEquipMontage(const FName& SectionName ) ;
+	void PlayPotionMontage() ;
 	virtual void Die_Implementation() override ;
 
 private:
@@ -86,6 +113,11 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Montages")
 	UAnimMontage* EquipMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Montages")
+	UAnimMontage* HealthPotionMontage;
+	UPROPERTY(EditDefaultsOnly, Category = "Montages")
+	TArray<FName> HealhPotionSections;
 
 	UPROPERTY()
 	USlashOverlay* SlashOverlay ;

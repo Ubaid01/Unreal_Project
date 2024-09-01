@@ -6,6 +6,9 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/AttributeComponent.h"
+#include "Components/InputComponent.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
 #include "Items/Item.h"
 #include "Items/Weapons/Weapon.h"
 #include "Animation/AnimMontage.h"
@@ -13,6 +16,7 @@
 #include "HUD/SlashOverlay.h"
 #include "Items/Soul.h"
 #include "Items/Treasure.h"
+#include "Items/Potion.h"
 
 ASlashCharacter::ASlashCharacter()
 {
@@ -65,11 +69,66 @@ void ASlashCharacter::AddGold(ATreasure* Treasure)
 	}
 }
 
+void ASlashCharacter::AddHealth(APotion* Potion)
+{
+	if ( Attributes && SlashOverlay ) 
+	{
+		int32 GoldCoins = Attributes -> GetGold();
+		int32 Souls = Attributes -> GetSouls();
+		float HealthPoitns = Attributes -> GetHealthPercent();
+		int32 GoldCost = Potion -> GetPotionGoldCost();
+		int32 SoulsCost = Potion -> GetPotionSoulsCost();
+
+		if ( Attributes -> GetHealthPercent() >= 0.97f )
+		{
+			if ( GEngine )
+			{
+				GEngine -> AddOnScreenDebugMessage(3, 5.0f, FColor::Cyan, FString("Health is Full!") );
+				return ;
+			}
+		}
+
+		if ( GoldCoins >= GoldCost ) 
+		{
+			Attributes -> AddToGold( - GoldCost ) ;
+			SlashOverlay -> SetGold( Attributes -> GetGold() ) ;
+			SlashOverlay -> SetHealthBarPercent( FMath :: Clamp( Attributes -> GetHealthPercent() + Potion -> GetPoints() / 100.0f, 0.0f, Attributes -> GetMaxHealth() ) ) ;
+			PlayPotionMontage();
+			Potion -> Destroy() ;
+		}
+		else if ( Souls >= SoulsCost )
+		{
+			Attributes -> AddToSouls( -SoulsCost );
+			SlashOverlay -> SetSouls( Attributes -> GetSouls() );
+			SlashOverlay -> SetHealthBarPercent( FMath :: Clamp( Attributes -> GetHealthPercent() + Potion -> GetPoints() / 100.0f, 0.0f, Attributes -> GetMaxHealth() ) ) ;
+			PlayPotionMontage();
+			Potion -> Destroy();
+		}
+		else 
+		{
+			if ( GEngine )
+			{
+				FString DebugMessage = FString::Printf(TEXT("Max Potion Cost: Gold = %d OR Souls = %d"), GoldCost, SoulsCost);
+				GEngine -> AddOnScreenDebugMessage(3, 5.0f, FColor::Red, DebugMessage ) ;
+			}
+		}
+
+	}
+}
+
 void ASlashCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	Tags.Add("EngageableTarget") ;
 
+	if (APlayerController* PlayerController = Cast<APlayerController>( Controller ) )
+	{
+		if ( UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer :: GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController -> GetLocalPlayer() ) )
+		{
+			Subsystem -> AddMappingContext(SlashContext, 0);
+		}
+	}
+
+	Tags.Add(FName("EngageableTarget")) ;
 	InitializeSlashOverlay();
 }
 
@@ -77,15 +136,18 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent -> BindAxis(FName("MoveForward"), this, &ASlashCharacter :: MoveForward);
-	PlayerInputComponent -> BindAxis(FName("MoveSideways"), this, &ASlashCharacter :: MoveSideways);
-	PlayerInputComponent -> BindAxis(FName("Turn"), this, &ASlashCharacter :: Turn);
-	PlayerInputComponent -> BindAxis(FName("LookUp"), this, &ASlashCharacter :: LookUp);
-	PlayerInputComponent -> BindAction(FName("Jump"), IE_Pressed , this, &ASlashCharacter :: Jump);
-	PlayerInputComponent -> BindAction(FName("Equip"), IE_Pressed, this, &ASlashCharacter :: EquipAction );
-	PlayerInputComponent -> BindAction(FName("Attack"), IE_Pressed, this, &ASlashCharacter :: Attack);
-	PlayerInputComponent -> BindAction(FName("Dodge"), IE_Pressed, this, &ASlashCharacter :: Dodge );
+	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		EnhancedInputComponent -> BindAction(MovementAction, ETriggerEvent :: Triggered, this, &ASlashCharacter :: Move);
+		EnhancedInputComponent -> BindAction(LookingAction, ETriggerEvent :: Triggered, this, &ASlashCharacter :: Look);
+		EnhancedInputComponent -> BindAction(JumpAction, ETriggerEvent :: Triggered, this, &ASlashCharacter :: Jump);
+		EnhancedInputComponent -> BindAction(AttackAction, ETriggerEvent :: Triggered, this, &ASlashCharacter :: Attack);
+		EnhancedInputComponent -> BindAction(EquippingAction, ETriggerEvent :: Triggered, this, &ASlashCharacter :: EquipAction);
+		EnhancedInputComponent -> BindAction(DodgeAction, ETriggerEvent :: Triggered, this, &ASlashCharacter :: Dodge);
+	}
 
+	//PlayerInputComponent -> BindAxis(FName("MoveForward"), this, &ASlashCharacter :: MoveForward);
+	//PlayerInputComponent -> BindAction(FName("Jump"), IE_Pressed , this, &ASlashCharacter :: Jump);
 }
 
 void ASlashCharacter::Jump()
@@ -108,6 +170,30 @@ void ASlashCharacter::GetHit_Implementation( const FVector& ImpactPoint, AActor*
 
 	if ( Attributes && Attributes -> GetHealthPercent() > 0.0f ) // Since after each thing our character was getting hit react.
 		ActionState = EActionState::EAS_HitReaction ;
+}
+
+void ASlashCharacter::Move(const FInputActionValue& Value)
+{
+	const FVector2D MovementVector = Value.Get<FVector2D>() ;
+	if ( ! Controller || MovementVector.IsZero() || ActionState != EActionState::EAS_Unoccupied ) return ;
+
+	const FRotator Rotation = GetControlRotation();
+	const FRotator YawRotation( 0.0f, Rotation.Yaw, 0.0f ) ; 
+	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis :: X);
+	AddMovementInput( ForwardDirection, MovementVector.Y ) ;
+
+	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis :: Y);
+	AddMovementInput( RightDirection, MovementVector.X ) ; // Scale by 'X' as 'X' vector will be filled with value.
+}
+
+void ASlashCharacter::Look(const FInputActionValue& Value)
+{
+	const FVector2D LookAxisVector = Value.Get<FVector2D>();
+	if ( Controller && ( ! LookAxisVector.IsZero( )  ) ) // IsZero() checked to prevent unecessary callbacks.
+	{
+		AddControllerYawInput( LookAxisVector.X );
+		AddControllerPitchInput( LookAxisVector.Y );
+	}
 }
 
 void ASlashCharacter::MoveForward(float Value)
@@ -295,6 +381,19 @@ void ASlashCharacter::PlayEquipMontage(const FName& SectionName)
 	{
 		AnimInstance -> Montage_Play(EquipMontage);
 		AnimInstance -> Montage_JumpToSection(SectionName, EquipMontage);
+	}
+}
+
+void ASlashCharacter::PlayPotionMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh() -> GetAnimInstance();
+	if (AnimInstance && HealthPotionMontage)
+	{
+		if ( HealhPotionSections.Num() <= 0 ) return ;
+		const int32 MaxI = HealhPotionSections.Num() - 1;
+		const int32 i = FMath :: RandRange( 0, MaxI );
+		AnimInstance -> Montage_Play(HealthPotionMontage);
+		AnimInstance -> Montage_JumpToSection( HealhPotionSections[i], EquipMontage);
 	}
 }
 
