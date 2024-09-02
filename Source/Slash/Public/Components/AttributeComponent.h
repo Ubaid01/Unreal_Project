@@ -17,6 +17,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void RegenerateStamina(float DeltaTime);
+	void UpgradeHealth(const class APotion* Potion) ;
 
 	FORCEINLINE void ReceiveDamage( float Damage ) ; 
 	void UseStamina( float StaminaCost ) ;

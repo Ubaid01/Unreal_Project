@@ -266,24 +266,42 @@ void AEnemy::MoveToTarget( AActor* Target )
 	MoveRequest.SetGoalActor( Target );
 	MoveRequest.SetAcceptanceRadius( AcceptanceRadius ) ;
 	EnemyController -> MoveTo( MoveRequest ); // NavMesh was optional
-	FNavPathSharedPtr NavPath;
-	EPathFollowingRequestResult::Type Result = EnemyController->MoveTo(MoveRequest, &NavPath);
 
-	if (Result != EPathFollowingRequestResult::RequestSuccessful)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("MoveTo request failed! Result: %d"), Result);
-	}
-	else
-	{
-		// Optional: Log path points for debugging
-		if (NavPath && NavPath->GetPathPoints().Num() > 0)
-		{
-			for (auto& Point : NavPath->GetPathPoints())
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Path Point: %s"), *Point.Location.ToString());
-			}
-		}
-	}
+	//FNavPathSharedPtr NavPath;
+	//EPathFollowingRequestResult::Type Result = EnemyController->MoveTo(MoveRequest, &NavPath);
+	//// Check the result and log accordingly
+	//switch (Result)
+	//{
+	//case EPathFollowingRequestResult::Failed:
+	//	UE_LOG(LogTemp, Error, TEXT("MoveTo request failed! Possible reasons:"));
+	//	UE_LOG(LogTemp, Error, TEXT("- Target is unreachable or navigation mesh is missing."));
+	//	UE_LOG(LogTemp, Error, TEXT("- Collision or obstruction could be blocking the path."));
+	//	UE_LOG(LogTemp, Error, TEXT("Check Target validity: %s"), Target ? *Target->GetName() : TEXT("NULL"));
+	//	break;
+
+	//case EPathFollowingRequestResult::RequestSuccessful:
+	//	UE_LOG(LogTemp, Log, TEXT("MoveTo request successful. Moving towards: %s"), *Target->GetName());
+	//	UE_LOG(LogTemp, Log, TEXT("AcceptanceRadius: %f"), AcceptanceRadius);
+	//	break;
+
+	//case EPathFollowingRequestResult::AlreadyAtGoal:
+	//	UE_LOG(LogTemp, Log, TEXT("MoveTo request not needed - already at goal. Target: %s"), *Target->GetName());
+	//	UE_LOG(LogTemp, Log, TEXT("AcceptanceRadius: %f"), AcceptanceRadius);
+	//	break;
+
+	//default:
+	//	UE_LOG(LogTemp, Warning, TEXT("MoveTo request returned an unknown result!"));
+	//	UE_LOG(LogTemp, Warning, TEXT("MoveTo request failed! Result: %d"), Result);
+	//	// Optional: Log path points for debugging
+	//	if (NavPath && NavPath->GetPathPoints().Num() > 0)
+	//	{
+	//		for (auto& Point : NavPath->GetPathPoints())
+	//		{
+	//			UE_LOG(LogTemp, Warning, TEXT("Path Point: %s"), *Point.Location.ToString());
+	//		}
+	//	}
+	//	break;
+	//}
 }
 
 bool AEnemy::InTargetRange(AActor* Target, double Radius)
@@ -340,7 +358,6 @@ void AEnemy :: ChaseTarget()
 {
 	EnemyState = EEnemyState:: EES_Chasing;
 	GetCharacterMovement() -> MaxWalkSpeed = ChasingSpeed;
-	UE_LOG(LogTemp, Warning, TEXT("Current Acceptance Radius: %f"), AcceptanceRadius);
 	MoveToTarget(CombatTarget);
 }
 

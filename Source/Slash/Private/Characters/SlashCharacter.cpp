@@ -83,7 +83,8 @@ void ASlashCharacter::AddHealth(APotion* Potion)
 		{
 			if ( GEngine )
 			{
-				GEngine -> AddOnScreenDebugMessage(3, 5.0f, FColor::Cyan, FString("Health is Full!") );
+				GEngine -> AddOnScreenDebugMessage(0, 5.0f, FColor::Cyan, FString(" "));
+				GEngine -> AddOnScreenDebugMessage(1, 5.0f, FColor::Cyan, FString("Health is Full!") );
 				return ;
 			}
 		}
@@ -92,7 +93,8 @@ void ASlashCharacter::AddHealth(APotion* Potion)
 		{
 			Attributes -> AddToGold( - GoldCost ) ;
 			SlashOverlay -> SetGold( Attributes -> GetGold() ) ;
-			SlashOverlay -> SetHealthBarPercent( FMath :: Clamp( Attributes -> GetHealthPercent() + Potion -> GetPoints() / 100.0f, 0.0f, Attributes -> GetMaxHealth() ) ) ;
+			Attributes -> UpgradeHealth( Potion ) ;
+			SlashOverlay -> SetHealthBarPercent( Attributes -> GetHealthPercent() ) ;
 			PlayPotionMontage();
 			Potion -> Destroy() ;
 		}
@@ -100,7 +102,8 @@ void ASlashCharacter::AddHealth(APotion* Potion)
 		{
 			Attributes -> AddToSouls( -SoulsCost );
 			SlashOverlay -> SetSouls( Attributes -> GetSouls() );
-			SlashOverlay -> SetHealthBarPercent( FMath :: Clamp( Attributes -> GetHealthPercent() + Potion -> GetPoints() / 100.0f, 0.0f, Attributes -> GetMaxHealth() ) ) ;
+			Attributes -> UpgradeHealth( Potion ) ;
+			SlashOverlay -> SetHealthBarPercent( Attributes -> GetHealthPercent() ) ;
 			PlayPotionMontage();
 			Potion -> Destroy();
 		}
@@ -109,7 +112,8 @@ void ASlashCharacter::AddHealth(APotion* Potion)
 			if ( GEngine )
 			{
 				FString DebugMessage = FString::Printf(TEXT("Max Potion Cost: Gold = %d OR Souls = %d"), GoldCost, SoulsCost);
-				GEngine -> AddOnScreenDebugMessage(3, 5.0f, FColor::Red, DebugMessage ) ;
+				GEngine -> AddOnScreenDebugMessage(0, 5.0f, FColor::Red, FString(" "));
+				GEngine -> AddOnScreenDebugMessage(1, 5.0f, FColor::Red, DebugMessage ) ;
 			}
 		}
 

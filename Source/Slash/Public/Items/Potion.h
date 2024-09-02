@@ -25,10 +25,10 @@ protected:
 	virtual void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 private:
 	UPROPERTY(EditAnywhere, Category = "Potion Properties")
-	int32 PotionGoldCost = 30 ;
+	int32 PotionGoldCost = 25 ;
 
 	UPROPERTY(EditAnywhere, Category = "Potion Properties")
-	int32 PotionSoulsCost = 15 ;
+	int32 PotionSoulsCost = 30 ;
 
 	UPROPERTY(EditAnywhere, Category = "Potion Properties")
 	float PotionPoints = 25.0f ;

@@ -127,6 +127,8 @@ private:
 	float AttackMax = 1.0f;
 	UPROPERTY(EditAnywhere)
 	float DeathLifeSpan = 10.0f;
+	UPROPERTY( EditAnywhere , Category = "Combat" )
+	TSubclassOf<ASoul> SoulClass ;
 
 	//FTimerHandle RestablingTimer;
 	//void IfHit_Restablize();
@@ -134,7 +136,5 @@ private:
 	//float RestablingDelayMin = 2.0f ;
 	//UPROPERTY(EditAnywhere, Category = "Combat")
 	//float RestablingDelayMax = 5.0f ;
-	//UPROPERTY( EditAnywhere , Category = "Combat" )
-	TSubclassOf<ASoul> SoulClass ;
 
 };

@@ -2,6 +2,7 @@
 
 
 #include "Components/AttributeComponent.h"
+#include "Items/Potion.h"
 
 UAttributeComponent::UAttributeComponent()
 {
@@ -25,6 +26,11 @@ void UAttributeComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 void UAttributeComponent::RegenerateStamina(float DeltaTime)
 {
 	Stamina = FMath :: Clamp(Stamina + (StaminaRegenerate * DeltaTime), 0.0f, MaxStamina);
+}
+
+void UAttributeComponent::UpgradeHealth(const APotion* Potion)
+{
+	Health = FMath :: Clamp(Health + Potion -> GetPoints() , 0.0f, MaxHealth);
 }
 
 void UAttributeComponent::ReceiveDamage(float Damage)
