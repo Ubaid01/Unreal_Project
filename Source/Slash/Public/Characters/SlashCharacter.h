@@ -105,7 +105,7 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* CameraBoom;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere , BlueprintReadOnly , meta = (AllowPrivateAccess = "true") )
 	UCameraComponent* ViewCamera;
 
 	UPROPERTY( VisibleInstanceOnly ) 
